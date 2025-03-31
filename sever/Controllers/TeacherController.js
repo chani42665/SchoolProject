@@ -3,20 +3,24 @@ const Class = require('../Models/ClassModel');
 const Exam = require('../Models/ExamModel');
 
 
-// 📌 יצירת מורה חדש
 async function createTeacher(req, res) {
     try {
         const newTeacher = new Teacher(req.body);
-        await Class.updateMany(
-            { _id: { $in: newTeacher.classes } },
-            { $push: { teachers: newTeacher._id } }
-        );
+        // // עדכון הכיתות עם המורה החדש
+        // await Class.updateMany(
+        //     { _id: { $in: classIds } },
+        //     { $push: { teachers: newTeacher._id } }
+        // );
+
         await newTeacher.save();
+
         res.status(200).json({ message: "Teacher created successfully", teacher: newTeacher });
+
     } catch (error) {
         res.status(400).json({ error: error.message });
     }
 }
+
 
 // 📌 שליפת כל המורים
 async function getAllTeachers(req, res) {

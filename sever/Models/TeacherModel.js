@@ -6,8 +6,8 @@ const teacherModel = new mongoose.Schema({
     lastName: { type: String, required: true },
     email: { type: String, required: true, unique: true },
     subjects: [{ type: String, required: true }],
-    classes: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Class' }],
     exams: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Exam' }],
+    isAdmain: { type: Boolean, default: false },
 });
 
 module.exports = mongoose.model('Teacher', teacherModel);

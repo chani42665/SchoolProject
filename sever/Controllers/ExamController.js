@@ -8,6 +8,8 @@ async function createExam(req, res) {
     try {
         const newExam = new Exam(req.body);
         await newExam.save();
+        const { teacherId } = req.body;
+       await Teacher.findByIdAndUpdate(teacherId, { $push: { exams: newExam._id } });
         res.status(200).json({ message: "Exam created successfully", exam: newExam });
     } catch (error) {
         res.status(400).json({ error: error.message });

@@ -7,7 +7,9 @@ async function createGrade(req, res) {
 
         const student = await Student.findById(studentId)
         if (!student)
-            return res.send("Student not found").status(404)
+            return res.status(404).json({ error: "Student not found" })
+        if(!exam)
+            return res.status(404).json({ error: "Exam not found" })
 
         const newGrade = new Grade(req.body)
         await newGrade.save()
@@ -15,9 +17,9 @@ async function createGrade(req, res) {
         student.grades.push(newGrade._id)
         await student.save()
 
-        res.send(newGrade).status(200)
+        res.status(200).json(newGrade)
     } catch (error) {
-        res.send(error).status(500)
+        res.status(500).json(error)
     }
 }
 
@@ -25,9 +27,9 @@ async function createGrade(req, res) {
 async function getAllGrades(req, res) {
     try {
         const grades = await Grade.find().populate('studentId').populate('exam')
-        res.send(grades).status(200)
+        res.status(200).json(grades)
     } catch (error) {
-        res.send(error).status(500)
+        res.status(500).json({ message: error.message })
     }
 }
 
@@ -40,12 +42,12 @@ async function getGradeById(req, res) {
             .populate("studentID", "firstName lastName email") // טוען פרטי התלמיד
 
         if (!grade)
-            return res.send("Grade not found").status(404)
+            return res.status(404).json({ error: "Grade not found" })
 
-        res.send(grade).status(200)
+        res.status(200).json(grade)
 
     } catch (error) {
-        res.send(error).status(500)
+        res.status(500).json({ message: error.message })
     }
 }
 
@@ -53,9 +55,9 @@ async function getGradesByStudentId(req, res) {
     try {
         const { studentId } = req.params;
         const grades = await Grade.find({ studentId }).populate('exam')
-        res.send(grades).status(200)
+        res.status(200).json(grades)
     } catch (error) {
-        res.send(error).status(500)
+        res.status(500).json({ message: error.message })
 
     }
 }
@@ -65,11 +67,11 @@ async function deleteGradeById(req, res) {
 
         const deletedGrade = await Grade.findByIdAndDelete(gradeId)
         if (!deletedGrade)
-            return res.send("Grade not found").status(404)
+            return res.status(404).json({message:"Grade not found"})
 
-        res.send("Grade deleted successfully").status(200)
+        res.status(200).json({message:"Grade deleted successfully"})
     } catch (error) {
-        res.send(error).status(500)
+        res.status(500).json({ message: error.message })
     }
 };
 
@@ -86,11 +88,11 @@ async function updateGradeById(req, res) {
         );
 
         if (!updatedGrade)
-            return res.send("Grade not found").status(404)
+            return res.status(404).json({message:"Grade not found"})
 
-        res.send("Grade updated successfully" + updatedGrade).status(200)
+        res.status(200).json({message:"Grade updated successfully"})
     } catch (error) {
-        res.send(error).status(500)
+        res.status(500).json({ message: error.message })
     }
 }
 

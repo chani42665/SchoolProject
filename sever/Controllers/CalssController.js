@@ -19,9 +19,9 @@ async function createClass(req, res) {
         }
 
         await newClass.save();
-        res.status(200).send(newClass);
+        res.status(200).json(newClass);
     } catch (error) {
-        res.status(400).send(error);
+        res.status(400).json({ message: error.message });
     }
 }
 
@@ -30,9 +30,9 @@ async function createClass(req, res) {
 async function getAllClasses(req, res) {
     try {
         const classes = await Class.find().populate('students').populate('teachers');
-        res.status(200).send(classes);
+        res.status(200).json(classes);
     } catch (error) {
-        res.status(500).send(error);
+        res.status(500).json({ message: error.message });
     }
 }
 
@@ -41,14 +41,18 @@ async function addStudentToClass(req, res) {
     try {
         const { classId, studentId } = req.body;
         const classObj = await Class.findById(classId);
-        if (!classObj) return res.status(404).send("הכיתה לא נמצאה");
+        if (!classObj) 
+            return res.status(404).json({ error: "Class not found" });
+        const student = await Student.findById(studentId);
+        if (!student) return 
+            res.status(404).json({ error: "Student not found" });
 
         await Student.findByIdAndUpdate(studentId, { classId });
         classObj.students.push(studentId);
         await classObj.save();
-        res.status(200).send("התלמיד נוסף לכיתה");
+        res.status(200).json({ message: "Student added to class" });
     } catch (error) {
-        res.status(500).send(error);
+        res.status(500).json({ message: error.message });
     }
 }
 
@@ -57,14 +61,19 @@ async function addTeacherToClass(req, res) {
     try {
         const { classId, teacherId } = req.body;
         const classObj = await Class.findById(classId);
-        if (!classObj) return res.status(404).json({ error: "Class not found" });
+        if (!classObj) 
+            return res.status(404).json({ error: "Class not found" });
+        const teacher = await Teacher.findById(teacherId);
+        if (!teacher) 
+            return res.status(404).json({ error: "Teacher not found" });
 
         await Teacher.findByIdAndUpdate(teacherId, { $push: { classes: classId } });
         classObj.teachers.push(teacherId);
         await classObj.save();
-        res.status(200).send("Teacher added to class");
+        res.status(200).json({ message: "Teacher added to class" });
     } catch (error) {
-        res.status(500).send(error);
+        res.status(500).json({ message: error.message });
+        
     }
 }
 
@@ -74,10 +83,11 @@ async function updateClass(req, res) {
         const { classId } = req.params;
         const updateData = req.body;
         const updatedClass = await Class.findByIdAndUpdate(classId, updateData, { new: true });
-        if (!updatedClass) return res.status(404).send("הכיתה לא נמצאה");
-        res.status(200).send(updatedClass);
+        if (!updatedClass) 
+            return res.status(404).json({ error: "Class not found" });
+        res.status(200).json(updatedClass);
     } catch (error) {
-        res.status(500).send(error);
+        res.status(500).json({ message: error.message });
     }
 }
 
@@ -86,14 +96,17 @@ async function removeStudentFromClass(req, res) {
     try {
         const { classId, studentId } = req.body;
         const classObj = await Class.findById(classId);
-        if (!classObj) return res.status(404).json({ error: "Class not found" });
-
+        if (!classObj) return 
+            res.status(404).json({ error: "Class not found" });
+        const student = await Student.findById(studentId);
+        if (!student) 
+            return res.status(404).json({ error: "Student not found" });
         await Student.findByIdAndUpdate(studentId, { $unset: { classId: "" } });
         classObj.students = classObj.students.filter(id => id.toString() !== studentId);
         await classObj.save();
-        res.status(200).send("התלמיד הוסר מהכיתה");
+        res.status(200).json({ message: "Student removed from class" });
     } catch (error) {
-        res.status(500).send(error);
+        res.status(500).json({ message: error.message });
     }
 }
 
@@ -107,9 +120,9 @@ async function removeTeacherFromClass(req, res) {
         await Teacher.findByIdAndUpdate(teacherId, { $pull: { classes: classId } });
         classObj.teachers = classObj.teachers.filter(id => id.toString() !== teacherId);
         await classObj.save();
-        res.status(200).send("המורה הוסר מהכיתה");
+        res.status(200).json({ message: "Teacher removed from class" });
     } catch (error) {
-        res.status(500).send(error);
+        res.status(500).json({ message: error.message });
     }
 }
 
