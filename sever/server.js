@@ -9,6 +9,7 @@ const studentRouter = require("./Routers/StudentRouter")
 const teacherRouter = require("./Routers/TeacherRouter")
 const examRouter = require("./Routers/ExamRouter")
 const gradeRouter = require("./Routers/GradeRouter")
+const loginRouter = require("./Routers/AuthRouter")
 
 dotenv.config()
 
@@ -18,6 +19,7 @@ app.use(bodyParser.json())
 mongoose.connect(process.env.MONGODB_CONNECT)
 .then(()=>console.log("connect")).catch(err => console.error("connection failed…"))
 
+app.use("/login",loginRouter)
 app.use("/class",classRouter)
 app.use("/student",studentRouter)
 app.use("/teacher",teacherRouter)

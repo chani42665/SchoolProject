@@ -11,7 +11,7 @@ async function createTeacher(req, res) {
         //     { _id: { $in: classIds } },
         //     { $push: { teachers: newTeacher._id } }
         // );
-
+        newTeacher.password = req.body.teacherId
         await newTeacher.save();
 
         res.status(200).json({ message: "Teacher created successfully", teacher: newTeacher });

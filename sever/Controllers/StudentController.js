@@ -5,7 +5,9 @@ const Class = require('../Models/ClassModel');
 async function createStudent(req, res) {
     try {
         const newStudent = new Student(req.body);
+        newStudent.password=req.body.studentId
         await newStudent.save();
+        
         const { classId } = req.body;
         let classObj = await Class.findById(classId);
         if(!classObj)

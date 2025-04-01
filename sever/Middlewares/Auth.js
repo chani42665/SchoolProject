@@ -9,7 +9,7 @@ function createToken(req, res, next) {
 
 function verify(req, res,next) {
     try{
-            const user = jwt.verify(req.headers["authorization"], process.env.JWT_SECRET_KEY)
+        const user = jwt.verify(req.headers["authorization"], process.env.JWT_SECRET_KEY)
     if(!user)
         res.status(401).json({ error: "Unauthorized" })
     req.user = user
