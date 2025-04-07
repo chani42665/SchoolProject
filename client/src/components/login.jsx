@@ -1,26 +1,70 @@
 import React from 'react';
+import { useForm , Controller  } from 'react-hook-form';
+import { useNavigate } from 'react-router-dom';
 import styled from 'styled-components';
+import { Message } from 'primereact/message';
+import { InputText } from 'primereact/inputtext';
+import { Password } from 'primereact/password';
+import { Button } from 'primereact/button';
+import 'primereact/resources/themes/lara-light-indigo/theme.css';  
+import 'primereact/resources/primereact.min.css'; 
+import 'primeicons/primeicons.css';
+import { useDispatch } from 'react-redux';
+
 
 const Login = () => {
+  const dispatch = useDispatch()
+  const navigate = useNavigate()
+
+  const { register, formState: { errors }, control, handleSubmit } = useForm({
+    defaultValues: { email: "", password: "" },
+  })
+
+  const onSubmit = (data) => {
+    console.log(data)
+    dispatch(createUser(data))
+    navigate("/דדדדד")
+  }
+
   return (
-    <StyledWrapper>
-      <div className="login-container">
-        <form className="login-form">
-          <h4 className="title">Log In!</h4>
-          <p>Login to your account</p>
-          <div className="input-group">
-            <input placeholder="email" name="email" id="email" type="text" />
+    <div className="p-d-flex p-jc-center p-ai-center" style={{ minHeight: '100vh' }}>
+      <div className="p-card" style={{ width: '300px' }}>
+        <h5 className="p-text-center">Login</h5>
+        <form onSubmit={handleSubmit(onSubmit)} className="p-fluid">
+          <div className="p-field">
+            <label htmlFor="email">Email</label>
+            <InputText 
+              id="email" 
+              placeholder="Email" 
+              {...register("email", { required: "Email is required" })} 
+              className={errors.email ? 'p-invalid' : ''}
+            />
+            {errors.email && <Message severity="error" text={errors.email.message} />}
           </div>
-          <div className="input-group">
-            <input placeholder="Password" name="password" id="password" type="password" />
+
+          <div className="p-field">
+            <label htmlFor="password">Password</label>
+            <Controller
+              name="password"
+              control={control}
+              rules={{ required: "Password is required" }}
+              render={({ field }) => (
+                <Password 
+                  id="password" 
+                  placeholder="Password" 
+                  toggleMask
+                  className={errors.password ? 'p-invalid' : ''}
+                  {...field}  // מתחבר ל-react-hook-form
+                />
+              )}
+            />
+            {errors.password && <Message severity="error" text={errors.password.message} />}
           </div>
-          <button type="submit">Login</button>
-          <div className="bottom-text">
-            <p><a href="#">Forgot password?</a></p>
-          </div>
+
+          <Button label="Login" type="submit" className="p-button p-button-rounded p-button-block" />
         </form>
       </div>
-    </StyledWrapper>
+    </div>
   );
 }
 
@@ -115,6 +159,12 @@ const StyledWrapper = styled.div`
 
   .bottom-text a:hover {
     color: #0173ed;
-  }`;
+  }
+    
+   .title {
+    color :#0173ed;
+  }
+  `
+
 
 export default Login;

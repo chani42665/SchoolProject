@@ -1,7 +1,7 @@
 const bcrypt = require("bcrypt");
 const Teacher = require("../Models/TeacherModel");
 const Student = require("../Models/StudentModel");
-const { createToken } = require("../Middlewares/Auth");
+const { createToken } = require("../Middlewares/auth");
 
 async function login(req, res) {
     try {
