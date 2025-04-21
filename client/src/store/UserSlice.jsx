@@ -2,8 +2,7 @@ import { createSlice, createAsyncThunk } from '@reduxjs/toolkit'
 import axios from 'axios'
 
 const initialValue = {
-    email: "",
-    password: "",
+    user:null,
     status: "idle", // idle | loading | succeeded | failed
     error: null
 }
@@ -13,12 +12,17 @@ export const createUser = createAsyncThunk(
     'user/createUser',
     async (userData, { rejectWithValue }) => {
         try {
-            const response = await axios.post('https://localhost:8080/login/', {
+            console.log('Sending login request:', userData);
+            const response = await axios.post('http://localhost:8080/login/', {
                 email: userData.email,
                 password: userData.password
             });
-            return response.data;
+            localStorage.setItem("token", response.data.token);
+            console.log('Login response:', response.data);
+            const { token, ...newData } = response.data // לוג לתשובה
+            return newData;
         } catch (error) {
+            console.error('Login error:', error.response?.data || 'Unknown error'); // לוג לשגיאה
             return rejectWithValue(error.response?.data || 'שגיאה כללית');
         }
     }
@@ -31,6 +35,7 @@ const userSlice = createSlice({
         logoutUser: (state) => {
             state.email = '';
             state.password = '';
+            state.user = null;
             state.status = 'idle';
             state.error = null;
         }
@@ -42,8 +47,7 @@ const userSlice = createSlice({
                 state.error = null;
             })
             .addCase(createUser.fulfilled, (state, action) => {
-                state.email = action.payload.email;
-                state.password = action.payload.password;
+                state.user = action.payload.user; // שמירה של כל פרטי המשתמש
                 state.status = 'succeeded';
             })
             .addCase(createUser.rejected, (state, action) => {

@@ -10,6 +10,7 @@ import 'primereact/resources/themes/lara-light-indigo/theme.css';
 import 'primereact/resources/primereact.min.css'; 
 import 'primeicons/primeicons.css';
 import { useDispatch } from 'react-redux';
+import { createUser } from '../store/UserSlice';
 
 
 const Login = () => {
@@ -22,8 +23,13 @@ const Login = () => {
 
   const onSubmit = (data) => {
     console.log(data)
-    dispatch(createUser(data))
-    navigate("/דדדדד")
+    dispatch(createUser(data)).unwrap()
+    .then(() => {
+      navigate("/menu"); // מעבר לתפריט אם ההתחברות הצליחה
+    })
+    .catch((err) => {
+      console.error("Login failed:", err); // טיפול בשגיאה
+    });
   }
 
   return (
@@ -61,7 +67,8 @@ const Login = () => {
             {errors.password && <Message severity="error" text={errors.password.message} />}
           </div>
 
-          <Button label="Login" type="submit" className="p-button p-button-rounded p-button-block" />
+          {/* <Button label="Login" type="submit" className="p-button p-button-rounded p-button-block" /> */}
+          <Button label="Login" type="submit" icon="pi pi-user" className="w-10rem mx-auto"></Button>
         </form>
       </div>
     </div>
