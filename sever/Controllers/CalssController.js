@@ -25,7 +25,27 @@ async function createClass(req, res) {
     }
 }
 
+async function getClassById(req , res) {
+    try {
+        const { classId } = req.params;
+        const classObj = await Class.findById(classId).populate('students').populate('teachers');
+        if (!classObj) return res.status(404).json({ error: "Class not found" });
+        res.status(200).json(classObj);
+    } catch (error) {
+        res.status(500).json({ message: error.message });
+    }
+}
 
+async function getClassByStudentId(req,res) {
+    try {
+        const { studentId } = req.params;
+        const classObj = await Class.findOne({ students: studentId }).populate('students').populate('teachers');
+        if (!classObj) return res.status(404).json({ error: "Class not found" });
+        res.status(200).json(classObj);
+    } catch (error) {
+        res.status(500).json({ message: error.message });
+    }
+}
 // קבלת כל הכיתות
 async function getAllClasses(req, res) {
     try {
@@ -129,6 +149,8 @@ async function removeTeacherFromClass(req, res) {
 module.exports = {
     createClass,
     getAllClasses,
+    getClassById,
+    getClassByStudentId,
     addStudentToClass,
     addTeacherToClass,
     updateClass,

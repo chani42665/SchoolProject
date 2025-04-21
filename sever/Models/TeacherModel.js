@@ -7,7 +7,7 @@ const teacherModel = new mongoose.Schema({
     email: { type: String, required: true, unique: true },
     subjects: [{ type: String, required: true }],
     exams: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Exam' }],
-    isAdmain: { type: Boolean, default: false },
+    role: { type: String, enum: ['admin', 'teacher'], default: 'teacher' }, 
     password : String
 });
 

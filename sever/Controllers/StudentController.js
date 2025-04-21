@@ -4,15 +4,23 @@ const Class = require('../Models/ClassModel');
 // יצירת תלמיד חדש
 async function createStudent(req, res) {
     try {
-        const newStudent = new Student(req.body);
-        newStudent.password=req.body.studentId
+        const hashedPassword = await bcrypt.hash(req.body.password, 10); // הצפנת הסיסמה
+        const newStudent = new Student({
+            ...req.body,
+            password: hashedPassword
+        });
+
+        if (!newStudent.role) {
+            newStudent.role = 'student'; // ברירת מחדל ל-role
+        }
         await newStudent.save();
-        
+
         const { classId } = req.body;
         let classObj = await Class.findById(classId);
-        if(!classObj)
+        if (!classObj) {
             return res.status(404).json({ error: "Class not found" });
-        
+        }
+
         // הוספת התלמיד לרשימת התלמידים בכיתה
         await Class.findByIdAndUpdate(newStudent.classId, { $push: { students: newStudent._id } });
 

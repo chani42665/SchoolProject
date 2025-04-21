@@ -19,6 +19,23 @@ app.use(bodyParser.json())
 mongoose.connect(process.env.MONGODB_CONNECT)
 .then(()=>console.log("connect")).catch(err => console.error("connection failed…"))
 
+// const connectDB = async () => {
+//     try {
+//         await mongoose.connect(process.env.MONGODB_CONNECT, {
+//             useNewUrlParser: true,
+//             useUnifiedTopology: true,
+//         });
+//         console.log('MongoDB connected...');
+//     } catch (err) {
+//         console.error('MongoDB connection failed:', err.message);
+//         process.exit(1); // Exit process with failure
+//     }
+// }
+
+// connectDB()
+
+app.use(express.json());
+
 app.use("/login",loginRouter)
 app.use("/class",classRouter)
 app.use("/student",studentRouter)

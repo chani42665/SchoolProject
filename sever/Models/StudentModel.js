@@ -6,6 +6,7 @@ const studentModel = new mongoose.Schema({
     lastName: { type: String, required: true },
     email: { type: String, required: true, unique: true },
     classId: { type: mongoose.Schema.Types.ObjectId, ref: 'Class', required: true },
+    role: { type: String, enum: ['student'], default: 'student' }, // שדה role
     password : String
 });
 

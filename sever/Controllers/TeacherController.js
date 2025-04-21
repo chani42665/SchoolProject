@@ -5,17 +5,18 @@ const Exam = require('../Models/ExamModel');
 
 async function createTeacher(req, res) {
     try {
-        const newTeacher = new Teacher(req.body);
-        // // עדכון הכיתות עם המורה החדש
-        // await Class.updateMany(
-        //     { _id: { $in: classIds } },
-        //     { $push: { teachers: newTeacher._id } }
-        // );
-        newTeacher.password = req.body.teacherId
+        const hashedPassword = await bcrypt.hash(req.body.password, 10); // הצפנת הסיסמה
+        const newTeacher = new Teacher({
+            ...req.body,
+            password: hashedPassword
+        });
+        
+        if (!newTeacher.role) {
+            newTeacher.role = 'teacher'; // ברירת מחדל ל-role
+        }
         await newTeacher.save();
 
         res.status(200).json({ message: "Teacher created successfully", teacher: newTeacher });
-
     } catch (error) {
         res.status(400).json({ error: error.message });
     }
