@@ -9,11 +9,9 @@ import { useEffect, useRef } from 'react';
 
 const AppBar = () => {
   const navigate = useNavigate();
-  const dispatch = useDispatch();
-  useEffect(()=>{
-    const userObj = useSelector((state) => state.userSlice);
-    const user = userObj.user;
-  })
+  const dispatch = useDispatch();const userObj = useSelector((state) => state.userSlice);
+  const user = userObj.user;
+ 
   
   const op = useRef(null);
 
