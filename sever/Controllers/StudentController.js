@@ -76,8 +76,8 @@ async function getStudentsByClassId(req, res) {
 // עדכון תלמיד
 async function updateStudent(req, res) {
     try {
-        const { studentId } = req.params;
-        const updatedStudent = await Student.findByIdAndUpdate(studentId, req.body, { new: true });
+        const { id } = req.params;
+        const updatedStudent = await Student.findByIdAndUpdate(id, req.body, { new: true });
 
         if (!updatedStudent) {
             return res.status(404).json({ error: "Student not found" });

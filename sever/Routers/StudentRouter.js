@@ -15,7 +15,7 @@ router.post("/createStudent",verify, authorizeRoles("admin"),createStudent)
 router.get("/getAllStudents", verify, authorizeRoles("admin","teacher"),getAllStudents)
 router.get("/getStudentById/:studenId",verify, authorizeRoles("admin","teacher"), getStudentById)
 router.get("/getStudentsByClassId/:classId",verify, authorizeRoles("admin","teacher"), getStudentsByClassId)
-router.put("/updateStudent",verify, authorizeRoles("admin","teacher"), updateStudent)
+router.put("/updateStudent/:id",verify, authorizeRoles("admin","teacher"), updateStudent)
 router.delete("/deleteStudent/:studentId",verify, authorizeRoles("admin","teacher"), deleteStudent);
 
 module.exports = router
