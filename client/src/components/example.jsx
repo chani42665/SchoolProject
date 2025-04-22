@@ -10,6 +10,7 @@ import { InputIcon } from 'primereact/inputicon';
 import { Dialog } from 'primereact/dialog';
 import { InputText } from 'primereact/inputtext';
 import axios from 'axios';
+import { Dropdown } from 'primereact/dropdown';
 
 const StudentsDemo = () => {
     let emptyStudent = {
@@ -17,18 +18,20 @@ const StudentsDemo = () => {
         firstName: '',
         lastName: '',
         email: '',
-        class: '',
+        classId: {},
         id: null
     };
 
     const [students, setStudents] = useState([]);
     const [studentDialog, setStudentDialog] = useState(false);
     const [deleteStudentDialog, setDeleteStudentDialog] = useState(false);
-    const [deleteStudentsDialog, setStudentProductsDialog] = useState(false);
+    const [deleteStudentsDialog, setDeleteStudentsDialog] = useState(false);
     const [student, setStudent] = useState(emptyStudent);
     const [selectedStudents, setSelectedStudents] = useState(null);
     const [submitted, setSubmitted] = useState(false);
     const [globalFilter, setGlobalFilter] = useState(null);
+    const [allClasses, setaAllClasses] = useState([]);
+    const [lastClass, setLastClass] = useState(null);
     const toast = useRef(null);
     const dt = useRef(null);
 
@@ -48,7 +51,97 @@ const StudentsDemo = () => {
         };
 
         fetchStudents();
-    }, []);
+
+        const fetchClasses = async () => {
+            try {
+                const token = localStorage.getItem('token');
+                const response = await axios.get('http://localhost:8080/class/getAllClasses/', {
+                    headers: {
+                        Authorization: token
+                    }
+                });
+                setaAllClasses(response.data);
+            } catch (error) {
+                console.error(error);
+            }
+        };
+
+        fetchStudents();
+        fetchClasses();
+    }, [students, allClasses]);
+
+    const deleteStudentById = async (Student) => {
+        try {
+            const token = localStorage.getItem('token');
+            const response = await axios.delete(`http://localhost:8080/student/deleteStudent/${Student._id}`, {
+                headers: {
+                    Authorization: token
+                }
+            });
+            console.log('Student deleted:', response.data);
+
+        } catch (error) {
+            console.error(error);
+        }
+    }
+    const updateStudentById = async (Student) => {
+        try {
+            const token = localStorage.getItem('token');
+            const response = await axios.put(`http://localhost:8080/student/updateStudent/${Student._id}`, Student, { // הוסף את ה-_id בבקשה
+                headers: {
+                    Authorization: token
+                }
+            });
+
+            console.log('Student update:', response.data);
+
+        } catch (error) {
+            console.error(error);
+        }
+    }
+
+    const updateStudentClass = async () => {
+
+        if (student.classId._id === lastClass._id) {
+            return;
+        }
+        removeStudentFromClass();
+        addStudentToClass();
+    }
+
+    const removeStudentFromClass = async () => {
+        try {
+            const token = localStorage.getItem('token');
+            await axios.delete('http://localhost:8080/class/removeStudentFromClass', {
+                headers: { Authorization: token },
+                data: {
+                    studentId: student._id,
+                    classId: lastClass._id
+                }
+            });
+            
+        } catch (error) {
+            console.error(error);
+        }
+    };
+
+    const addStudentToClass = async () => {
+        try {
+            const token = localStorage.getItem('token');
+            await axios.put(`http://localhost:8080/class/addStudentToClass/`, {
+                headers: {
+                    Authorization: token
+                },
+                data: {
+                    studentId: student._id,
+                    classId: lastClass._id
+                }
+            });
+        } catch (error) {
+            console.error(error);
+        }
+    };
+
 
     const openNew = () => {
         setStudent(emptyStudent);
@@ -66,26 +159,25 @@ const StudentsDemo = () => {
     };
 
     const hideDeleteStudentsDialog = () => {
-        setStudentProductsDialog(false);
+        setDeleteStudentsDialog(false);
     };
 
-    const saveStudent = () => {
+    const saveStudent = async () => {
         setSubmitted(true);
-
         if (student.firstName.trim() && student.lastName.trim()) {
             let _students = [...students];
             let _student = { ...student };
 
-            if (student.id) {
-                const index = findIndexById(student.id);
+            if (student._id) {
+                const index = findIndexById(student._id);
                 _students[index] = _student;
+                await updateStudentById(_student);
                 toast.current.show({ severity: 'success', summary: 'Successful', detail: 'Student Updated', life: 3000 });
             } else {
                 _student.id = createId();
                 _students.push(_student);
                 toast.current.show({ severity: 'success', summary: 'Successful', detail: 'Student Created', life: 3000 });
             }
-
             setStudents(_students);
             setStudentDialog(false);
             setStudent(emptyStudent);
@@ -103,6 +195,7 @@ const StudentsDemo = () => {
     };
 
     const deleteStudent = () => {
+        deleteStudentById(student);
         let _students = students.filter((val) => val.id !== student.id);
         setStudents(_students);
         setDeleteStudentDialog(false);
@@ -135,21 +228,47 @@ const StudentsDemo = () => {
     };
 
     const confirmDeleteSelected = () => {
-        setStudentProductsDialog(true);
+        setDeleteStudentsDialog(true);
     };
 
-    const deleteSelectedStudents = () => {
-        let _students = students.filter((val) => !selectedStudents.includes(val));
-        setStudents(_students);
-        setStudentProductsDialog(false);
-        setSelectedStudents(null);
-        toast.current.show({ severity: 'success', summary: 'Successful', detail: 'Students Deleted', life: 3000 });
+    const deleteSelectedStudents = async () => {
+        try {
+            const token = localStorage.getItem('token');
+
+            await Promise.all(
+                selectedStudents.map(student => {
+                    console.log("Deleting student with ID:", student.studentId);
+                    return axios.delete(`http://localhost:8080/student/deleteStudent/${student._id}`, {
+                        headers: { Authorization: token }
+                    });
+                })
+            );
+
+
+            const remainingStudents = students.filter(student => !selectedStudents.includes(student));
+
+            setStudents(remainingStudents);
+            setDeleteStudentsDialog(false);
+            setSelectedStudents(null);
+            toast.current.show({ severity: 'success', summary: 'Successful', detail: 'Students Deleted', life: 3000 });
+
+        } catch (error) {
+            console.error(error);
+            toast.current.show({ severity: 'error', summary: 'Error', detail: 'Failed to delete students', life: 3000 });
+        }
     };
+
 
     const onInputChange = (e, name) => {
         const val = (e.target && e.target.value) || '';
         let _student = { ...student };
-        _student[`${name}`] = val;
+
+        if (name === 'classId') {
+            _student[`${name}`] = val ? { id: val } : {};
+        } else {
+            _student[`${name}`] = val;
+        }
+
         setStudent(_student);
     };
 
@@ -174,10 +293,10 @@ const StudentsDemo = () => {
             </div>
         );
     };
-    
-    
-    
-    
+
+
+
+
 
     const header = (
         <div className="flex flex-wrap gap-2 align-items-center justify-content-between">
@@ -210,6 +329,26 @@ const StudentsDemo = () => {
         </React.Fragment>
     );
 
+    const selectedClassTemplate = (option, props) => {
+        if (option) {
+            return (
+                <div className="flex align-items-center">
+                    <div>{option.name}</div>
+                </div>
+            );
+        }
+
+        return <span>{props.placeholder}</span>;
+    };
+
+    const classOptionTemplate = (option) => {
+        return (
+            <div className="flex align-items-center">
+                <div>{option.name}</div>
+            </div>
+        );
+    };
+
     return (
         <div>
             <Toast ref={toast} />
@@ -217,14 +356,14 @@ const StudentsDemo = () => {
                 <Toolbar className="mb-4" left={leftToolbarTemplate} right={rightToolbarTemplate}></Toolbar>
 
                 <DataTable ref={dt} value={students} selection={selectedStudents} onSelectionChange={(e) => setSelectedStudents(e.value)}
-                    dataKey="id" paginator rows={10} rowsPerPageOptions={[5, 10, 25]}
+                    dataKey="studentId" paginator rows={10} rowsPerPageOptions={[5, 10, 25]}
                     paginatorTemplate="FirstPageLink PrevPageLink PageLinks NextPageLink LastPageLink CurrentPageReport RowsPerPageDropdown"
                     currentPageReportTemplate="Showing {first} to {last} of {totalRecords} products" globalFilter={globalFilter} header={header}>
                     <Column selectionMode="multiple" exportable={false}></Column>
                     <Column key="studentId" field="studentId" header="ID" sortable style={{ minWidth: '10rem' }}></Column>
                     <Column key="firstName" field="firstName" header="First Name" sortable style={{ minWidth: '10rem' }}></Column>
                     <Column key="lastName" field="lastName" header="Last Name" sortable style={{ minWidth: '10rem' }}></Column>
-                    <Column key="class" field="class" header="Class" sortable style={{ minWidth: '10rem' }}></Column>
+                    <Column key="classId" field="classId.name" header="Class" sortable style={{ minWidth: '10rem' }}></Column>
                     <Column key="email" field="email" header="Email" sortable style={{ minWidth: '10rem' }}></Column>
                     <Column key="action" body={actionBodyTemplate} exportable={false} style={{ minWidth: '12rem' }}></Column>
                 </DataTable>
@@ -252,9 +391,36 @@ const StudentsDemo = () => {
                     {submitted && !student.email && <small className="p-error">Email is required.</small>}
                 </div>
                 <div className="field">
-                    <label htmlFor="class" className="font-bold">Class</label>
-                    <InputText id="class" value={student.class} onChange={(e) => onInputChange(e, 'class')} required autoFocus className={classNames({ 'p-invalid': submitted && !student.class })} />
-                    {submitted && !student.class && <small className="p-error">Class is required.</small>}
+                    <label htmlFor="classId" className="font-bold">classId</label>
+                    {/* <InputText id="classId" value={student.classId} onChange={(e) => onInputChange(e, 'classId')} required autoFocus className={classNames({ 'p-invalid': submitted && !student.classId })} /> */}
+                    <Dropdown
+                        value={student.classId}
+                        onChange={async (e) => {
+                            const newClassId = e.value;
+                            const lastClassId = student.classId;
+
+                            if (newClassId._id !== lastClassId._id) {
+                                await updateStudentClass(); // אם צריך פעולה כלשהי
+                            }
+
+                            setStudent(prev => ({
+                                ...prev,
+                                classId: newClassId
+                            }));
+                        }}
+                        options={allClasses}
+                        optionLabel="name"
+                        placeholder="Select a Class"
+                        filter
+                        valueTemplate={selectedClassTemplate}
+                        itemTemplate={classOptionTemplate}
+                        className="w-full md:w-14rem"
+                    />
+                    {submitted && !student.classId && (
+                        <small className="p-error">classId is required.</small>
+                    )}
+
+                    {submitted && !student.classId && <small className="p-error">classId is required.</small>}
                 </div>
             </Dialog>
 
