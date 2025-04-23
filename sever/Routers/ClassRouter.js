@@ -9,10 +9,10 @@ router.post("/createClass",verify, authorizeRoles("admin"), createClass)
 router.get("/getAllClasses",verify, authorizeRoles("admin","teacher"), getAllClasses)
 router.get("/getClassById/:classId",verify, authorizeRoles("admin","teacher"), getClassById)
 router.get("/getClassByStudentId/:studentId",verify, authorizeRoles("admin","teacher"), getClassByStudentId)
-router.put("/addStudentToClass/:studenId",verify, authorizeRoles("admin"), addStudentToClass)
+router.put("/addStudentToClass/:studentId",verify, authorizeRoles("admin"), addStudentToClass)
 router.put("/addTeacherToClass/:teacherId",verify, authorizeRoles("admin"), addTeacherToClass)
 router.put("/updateClass", verify, authorizeRoles("admin"),updateClass)
-router.delete("/removeStudentFromClass/:studenId",verify, authorizeRoles("admin"), removeStudentFromClass)
+router.delete("/removeStudentFromClass/:studentId",verify, authorizeRoles("admin"), removeStudentFromClass)
 router.delete("/removeTeacherFromClass/:teacherId",verify, authorizeRoles("admin"), removeTeacherFromClass)
 
 module.exports = router

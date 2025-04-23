@@ -32,43 +32,41 @@ const StudentsDemo = () => {
     const [globalFilter, setGlobalFilter] = useState(null);
     const [allClasses, setaAllClasses] = useState([]);
     const [lastClass, setLastClass] = useState(null);
+    const [newClass, setNewClass] = useState(null);
     const toast = useRef(null);
     const dt = useRef(null);
 
+    const fetchStudents = async () => {
+        try {
+            const token = localStorage.getItem('token');
+            const response = await axios.get('http://localhost:8080/student/getAllStudents/', {
+                headers: {
+                    Authorization: token
+                }
+            });
+            setStudents(response.data);
+        } catch (error) {
+            console.error(error);
+        }
+    };
+    const fetchClasses = async () => {
+        try {
+            const token = localStorage.getItem('token');
+            const response = await axios.get('http://localhost:8080/class/getAllClasses/', {
+                headers: {
+                    Authorization: token
+                }
+            });
+            setaAllClasses(response.data);
+        } catch (error) {
+            console.error(error);
+        }
+    };
     useEffect(() => {
-        const fetchStudents = async () => {
-            try {
-                const token = localStorage.getItem('token');
-                const response = await axios.get('http://localhost:8080/student/getAllStudents/', {
-                    headers: {
-                        Authorization: token
-                    }
-                });
-                setStudents(response.data);
-            } catch (error) {
-                console.error(error);
-            }
-        };
-
-        fetchStudents();
-
-        const fetchClasses = async () => {
-            try {
-                const token = localStorage.getItem('token');
-                const response = await axios.get('http://localhost:8080/class/getAllClasses/', {
-                    headers: {
-                        Authorization: token
-                    }
-                });
-                setaAllClasses(response.data);
-            } catch (error) {
-                console.error(error);
-            }
-        };
 
         fetchStudents();
         fetchClasses();
-    }, [students, allClasses]);
+    }, []);
 
     const deleteStudentById = async (Student) => {
         try {
@@ -87,7 +85,7 @@ const StudentsDemo = () => {
     const updateStudentById = async (Student) => {
         try {
             const token = localStorage.getItem('token');
-            const response = await axios.put(`http://localhost:8080/student/updateStudent/${Student._id}`, Student, { // הוסף את ה-_id בבקשה
+            const response = await axios.put(`http://localhost:8080/student/updateStudent/${Student._id}`, Student, {
                 headers: {
                     Authorization: token
                 }
@@ -100,26 +98,33 @@ const StudentsDemo = () => {
         }
     }
 
-    const updateStudentClass = async () => {
 
-        if (student.classId._id === lastClass._id) {
-            return;
-        }
-        removeStudentFromClass();
-        addStudentToClass();
+    // const updateStudentClass = async () => {
+    //     await removeStudentFromClass();
+    //     const updatedStudent = { ...student, classId: newClass };
+    //     await updateStudentById(updatedStudent);
+    //     await addStudentToClass();
+    //     await fetchStudents(); // ודא שהפונקציה מחזירה את הסטודנטים המעודכנים
+    // }
+
+    const updateStudentClass = async () => {
+        await removeStudentFromClass();
+        const updatedStudent = { ...student, classId: newClass };
+        await updateStudentById(updatedStudent);
+        await addStudentToClass();
+        await fetchStudents(); 
     }
+
 
     const removeStudentFromClass = async () => {
         try {
             const token = localStorage.getItem('token');
-            await axios.delete('http://localhost:8080/class/removeStudentFromClass', {
-                headers: { Authorization: token },
-                data: {
-                    studentId: student._id,
-                    classId: lastClass._id
+            await axios.delete(`http://localhost:8080/class/removeStudentFromClass/${student._id}`, {
+                headers: {
+                    Authorization: token
                 }
             });
-            
+
         } catch (error) {
             console.error(error);
         }
@@ -128,13 +133,9 @@ const StudentsDemo = () => {
     const addStudentToClass = async () => {
         try {
             const token = localStorage.getItem('token');
-            await axios.put(`http://localhost:8080/class/addStudentToClass/`, {
+            await axios.put(`http://localhost:8080/class/addStudentToClass/${student._id}`, {
                 headers: {
                     Authorization: token
-                },
-                data: {
-                    studentId: student._id,
-                    classId: lastClass._id
                 }
             });
         } catch (error) {
@@ -330,7 +331,7 @@ const StudentsDemo = () => {
     );
 
     const selectedClassTemplate = (option, props) => {
-        if (option) {
+        if (option && option.name) {
             return (
                 <div className="flex align-items-center">
                     <div>{option.name}</div>
@@ -344,10 +345,11 @@ const StudentsDemo = () => {
     const classOptionTemplate = (option) => {
         return (
             <div className="flex align-items-center">
-                <div>{option.name}</div>
+                <div>{option?.name || 'Unnamed class'}</div>
             </div>
         );
     };
+
 
     return (
         <div>
@@ -397,20 +399,25 @@ const StudentsDemo = () => {
                         value={student.classId}
                         onChange={async (e) => {
                             const newClassId = e.value;
-                            const lastClassId = student.classId;
+                            setLastClass(student.classId);
+                            setNewClass(newClassId._id);
+                            console.log("newClass",newClassId._id);
 
-                            if (newClassId._id !== lastClassId._id) {
+                            // setStudent(prev => ({
+                            //     ...prev,
+                            //     classId: newClassId
+                            // }));
+
+                            if (student.classId !== newClass) {
+
                                 await updateStudentClass(); // אם צריך פעולה כלשהי
                             }
 
-                            setStudent(prev => ({
-                                ...prev,
-                                classId: newClassId
-                            }));
+
                         }}
                         options={allClasses}
                         optionLabel="name"
-                        placeholder="Select a Class"
+                        placeholder={student.classId.name}
                         filter
                         valueTemplate={selectedClassTemplate}
                         itemTemplate={classOptionTemplate}
