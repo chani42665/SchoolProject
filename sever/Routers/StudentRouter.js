@@ -11,11 +11,11 @@ const {
     deleteStudent
 } = require("../Controllers/StudentController")
 
-router.post("/createStudent",verify, authorizeRoles("admin"),createStudent)
-router.get("/getAllStudents", verify, authorizeRoles("admin","teacher"),getAllStudents)
+router.post("/createStudent",createStudent)
+router.get("/getAllStudents",getAllStudents)
 router.get("/getStudentById/:studenId",verify, authorizeRoles("admin","teacher"), getStudentById)
 router.get("/getStudentsByClassId/:classId",verify, authorizeRoles("admin","teacher"), getStudentsByClassId)
-router.put("/updateStudent/:id",verify, authorizeRoles("admin","teacher"), updateStudent)
-router.delete("/deleteStudent/:studentId",verify, authorizeRoles("admin","teacher"), deleteStudent);
+router.put("/updateStudent/:id", updateStudent)
+router.delete("/deleteStudent/:studentId", deleteStudent);
 
 module.exports = router

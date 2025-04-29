@@ -1,5 +1,7 @@
 const Student = require('../Models/StudentModel');
 const Class = require('../Models/ClassModel');
+const CalssController = require("../Controllers/CalssController")
+const mongoose = require('mongoose');
 
 // יצירת תלמיד חדש
 async function createStudent(req, res) {
@@ -77,18 +79,109 @@ async function getStudentsByClassId(req, res) {
 async function updateStudent(req, res) {
     try {
         const { id } = req.params;
+       //await CalssController.removeStudentFromClass(req,res)
+      await removeStudentFromClass(id)
         const updatedStudent = await Student.findByIdAndUpdate(id, req.body, { new: true });
+        req.body = updatedStudent
 
         if (!updatedStudent) {
             return res.status(404).json({ error: "Student not found" });
         }
-
+        await addStudentToClass(updatedStudent._id)
+       //await CalssController.addStudentToClass(req,res)
+        
         res.status(200).json({ message: "Student updated successfully", student: updatedStudent });
     } catch (error) {
         res.status(500).json({ error: error.message });
     }
 }
+async function removeStudentFromClass(id) {
+    try {
+        //const { studentId } = req.params;
 
+        const student = await Student.findById(id);
+        if (!student) {
+            return 
+            //res.status(404).json({ error: "Student not found" });
+        }
+
+        const classId = student.classId;
+        if (!classId) {
+            return 
+            //res.status(400).json({ error: "Student is not assigned to any class" });
+        }
+
+        const classObj = await Class.findById(classId);
+        if (!classObj) {
+            return 
+            //res.status(404).json({ error: "Class not found" });
+        }
+
+        // הסרת מזהה התלמיד מרשימת התלמידים בכיתה
+        classObj.students = classObj.students.filter(
+            (_id) => _id.toString() !== id
+        );
+        await classObj.save();
+
+        // הסרת שיוך הכיתה מהתלמיד
+        // await Student.findByIdAndUpdate(studentId, { $unset: { classId: "" } });
+
+        //res.status(200).json({ message: "Student removed from class" });
+    } catch (error) {
+        //res.status(500).json({ message: error.message });
+    }
+}
+async function addStudentToClass(studentId) {
+    try {
+        //const { studentId } = req.params;
+        const student = await Student.findById(studentId);
+        if (!student) {
+            return 
+            //res.status(404).json({ error: "Student not found" });
+        }
+
+        const classId = student.classId;
+        if (!classId) {
+            return 
+            //res.status(400).json({ error: "Student is not assigned to any class" });
+        }
+        const classObj = await Class.findById(classId);
+        if (!classObj) 
+            return 
+        //res.status(404).json({ error: "Class not found" });
+
+
+        //await Student.findByIdAndUpdate(studentId, { classId });
+        classObj.students.push(studentId);
+        await classObj.save();
+        //res.status(200).json({ message: "Student added to class" });
+    } catch (error) {
+        //res.status(500).json({ message: error.message });
+    }
+}
+
+
+
+// async function updateStudent(req, res) {
+//     try {
+//         const { id } = req.params;
+
+//         // Validate the ObjectId
+//         if (!mongoose.Types.ObjectId.isValid(id)) {
+//             return res.status(400).json({ error: "Invalid student ID format" });
+//         }
+
+//         const updatedStudent = await Student.findByIdAndUpdate(id, req.body, { new: true });
+
+//         if (!updatedStudent) {
+//             return res.status(404).json({ error: "Student not found" });
+//         }
+
+//         res.status(200).json({ message: "Student updated successfully", student: updatedStudent });
+//     } catch (error) {
+//         res.status(500).json({ error: error.message });
+//     }
+// }
 // מחיקת תלמיד
 async function deleteStudent(req, res) {
     try {

@@ -6,7 +6,7 @@ const { createClass, getAllClasses,getClassById,getClassByStudentId, addStudentT
 
 
 router.post("/createClass",verify, authorizeRoles("admin"), createClass)
-router.get("/getAllClasses",verify, authorizeRoles("admin","teacher"), getAllClasses)
+router.get("/getAllClasses", getAllClasses)
 router.get("/getClassById/:classId",verify, authorizeRoles("admin","teacher"), getClassById)
 router.get("/getClassByStudentId/:studentId",verify, authorizeRoles("admin","teacher"), getClassByStudentId)
 router.put("/addStudentToClass/:studentId",verify, authorizeRoles("admin"), addStudentToClass)

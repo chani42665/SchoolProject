@@ -49,7 +49,8 @@ async function getClassByStudentId(req,res) {
 // קבלת כל הכיתות
 async function getAllClasses(req, res) {
     try {
-        const classes = await Class.find().populate('students').populate('teachers');
+        const classes = await Class.find()
+        //.populate('students').populate('teachers');
         res.status(200).json(classes);
     } catch (error) {
         res.status(500).json({ message: error.message });
@@ -145,7 +146,7 @@ async function removeStudentFromClass(req, res) {
         await classObj.save();
 
         // הסרת שיוך הכיתה מהתלמיד
-        await Student.findByIdAndUpdate(studentId, { $unset: { classId: "" } });
+        // await Student.findByIdAndUpdate(studentId, { $unset: { classId: "" } });
 
         res.status(200).json({ message: "Student removed from class" });
     } catch (error) {
