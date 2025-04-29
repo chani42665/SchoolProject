@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect, useRef } from 'react';
 import { classNames } from 'primereact/utils';
 import { DataTable } from 'primereact/datatable';
@@ -12,16 +13,18 @@ import { InputText } from 'primereact/inputtext';
 import axios from 'axios';
 import { Dropdown } from 'primereact/dropdown';
 
-const StudentsDemo = () => {
+
+
+const Students=()=>{
+
     let emptyStudent = {
         studentId: '',
         firstName: '',
         lastName: '',
         email: '',
         classId: {},
-        id: null
+        
     };
-
     const [students, setStudents] = useState([]);
     const [studentDialog, setStudentDialog] = useState(false);
     const [deleteStudentDialog, setDeleteStudentDialog] = useState(false);
@@ -31,11 +34,8 @@ const StudentsDemo = () => {
     const [submitted, setSubmitted] = useState(false);
     const [globalFilter, setGlobalFilter] = useState(null);
     const [allClasses, setaAllClasses] = useState([]);
-    const [lastClass, setLastClass] = useState(null);
-    const [newClass, setNewClass] = useState(null);
     const toast = useRef(null);
     const dt = useRef(null);
-
     const fetchStudents = async () => {
         try {
             const token = localStorage.getItem('token');
@@ -67,7 +67,6 @@ const StudentsDemo = () => {
         fetchStudents();
         fetchClasses();
     }, []);
-
     const deleteStudentById = async (Student) => {
         try {
             const token = localStorage.getItem('token');
@@ -82,10 +81,10 @@ const StudentsDemo = () => {
             console.error(error);
         }
     }
-    const updateStudentById = async (Student) => {
+    const updateStudentById = async () => {
         try {
             const token = localStorage.getItem('token');
-            const response = await axios.put(`http://localhost:8080/student/updateStudent/${Student._id}`, Student, {
+            const response = await axios.put(`http://localhost:8080/student/updateStudent/${student._id}`, student, {
                 headers: {
                     Authorization: token
                 }
@@ -97,53 +96,6 @@ const StudentsDemo = () => {
             console.error(error);
         }
     }
-
-
-    // const updateStudentClass = async () => {
-    //     await removeStudentFromClass();
-    //     const updatedStudent = { ...student, classId: newClass };
-    //     await updateStudentById(updatedStudent);
-    //     await addStudentToClass();
-    //     await fetchStudents(); // ודא שהפונקציה מחזירה את הסטודנטים המעודכנים
-    // }
-
-    const updateStudentClass = async () => {
-        await removeStudentFromClass();
-        const updatedStudent = { ...student, classId: newClass };
-        await updateStudentById(updatedStudent);
-        await addStudentToClass();
-        await fetchStudents(); 
-    }
-
-
-    const removeStudentFromClass = async () => {
-        try {
-            const token = localStorage.getItem('token');
-            await axios.delete(`http://localhost:8080/class/removeStudentFromClass/${student._id}`, {
-                headers: {
-                    Authorization: token
-                }
-            });
-
-        } catch (error) {
-            console.error(error);
-        }
-    };
-
-    const addStudentToClass = async () => {
-        try {
-            const token = localStorage.getItem('token');
-            await axios.put(`http://localhost:8080/class/addStudentToClass/${student._id}`, {
-                headers: {
-                    Authorization: token
-                }
-            });
-        } catch (error) {
-            console.error(error);
-        }
-    };
-
-
     const openNew = () => {
         setStudent(emptyStudent);
         setSubmitted(false);
@@ -163,28 +115,6 @@ const StudentsDemo = () => {
         setDeleteStudentsDialog(false);
     };
 
-    const saveStudent = async () => {
-        setSubmitted(true);
-        if (student.firstName.trim() && student.lastName.trim()) {
-            let _students = [...students];
-            let _student = { ...student };
-
-            if (student._id) {
-                const index = findIndexById(student._id);
-                _students[index] = _student;
-                await updateStudentById(_student);
-                toast.current.show({ severity: 'success', summary: 'Successful', detail: 'Student Updated', life: 3000 });
-            } else {
-                _student.id = createId();
-                _students.push(_student);
-                toast.current.show({ severity: 'success', summary: 'Successful', detail: 'Student Created', life: 3000 });
-            }
-            setStudents(_students);
-            setStudentDialog(false);
-            setStudent(emptyStudent);
-        }
-    };
-
     const editStudent = (student) => {
         setStudent({ ...student });
         setStudentDialog(true);
@@ -194,7 +124,6 @@ const StudentsDemo = () => {
         setStudent(student);
         setDeleteStudentDialog(true);
     };
-
     const deleteStudent = () => {
         deleteStudentById(student);
         let _students = students.filter((val) => val.id !== student.id);
@@ -202,6 +131,30 @@ const StudentsDemo = () => {
         setDeleteStudentDialog(false);
         setStudent(emptyStudent);
         toast.current.show({ severity: 'success', summary: 'Successful', detail: 'Student Deleted', life: 3000 });
+    };
+    const saveStudent = async () => {
+        setSubmitted(true);
+        if (student.firstName.trim() && student.lastName.trim()) {
+            let _students = [...students];
+            let _student = { ...student };
+            await updateStudentById()
+            // if (student._id) {
+                const index = findIndexById(student._id);
+                _students[index] = _student;
+                await updateStudentById();
+                toast.current.show({ severity: 'success', summary: 'Successful', detail: 'Student Updated', life: 3000 });
+            // } else {
+            //     _student.id = createId();
+            //     _students.push(_student);
+            //     toast.current.show({ severity: 'success', summary: 'Successful', detail: 'Student Created', life: 3000 });
+            // }
+             // אם צריך פעולה כלשהי
+
+            setStudents(_students);
+            setStudentDialog(false);
+            setStudent(emptyStudent);
+            fetchStudents();
+        }
     };
 
     const findIndexById = (id) => {
@@ -213,15 +166,6 @@ const StudentsDemo = () => {
             }
         }
         return index;
-    };
-
-    const createId = () => {
-        let id = '';
-        let chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
-        for (let i = 0; i < 5; i++) {
-            id += chars.charAt(Math.floor(Math.random() * chars.length));
-        }
-        return id;
     };
 
     const exportCSV = () => {
@@ -258,21 +202,6 @@ const StudentsDemo = () => {
             toast.current.show({ severity: 'error', summary: 'Error', detail: 'Failed to delete students', life: 3000 });
         }
     };
-
-
-    const onInputChange = (e, name) => {
-        const val = (e.target && e.target.value) || '';
-        let _student = { ...student };
-
-        if (name === 'classId') {
-            _student[`${name}`] = val ? { id: val } : {};
-        } else {
-            _student[`${name}`] = val;
-        }
-
-        setStudent(_student);
-    };
-
     const leftToolbarTemplate = () => {
         return (
             <div className="flex flex-wrap gap-2">
@@ -349,10 +278,9 @@ const StudentsDemo = () => {
             </div>
         );
     };
-
-
-    return (
-        <div>
+    
+    return(<>
+    <div>
             <Toast ref={toast} />
             <div className="card">
                 <Toolbar className="mb-4" left={leftToolbarTemplate} right={rightToolbarTemplate}></Toolbar>
@@ -399,20 +327,22 @@ const StudentsDemo = () => {
                         value={student.classId}
                         onChange={async (e) => {
                             const newClassId = e.value;
-                            setLastClass(student.classId);
-                            setNewClass(newClassId._id);
-                            console.log("newClass",newClassId._id);
+                            
+                            // setNewClass(newClassId._id);
+                            // console.log("newClass",newClassId._id);
 
-                            // setStudent(prev => ({
-                            //     ...prev,
-                            //     classId: newClassId
-                            // }));
+                            // // setStudent(prev => ({
+                            // //     ...prev,
+                            // //     classId: newClassId
+                            // // }));
 
-                            if (student.classId !== newClass) {
+                            if (student.classId !== newClassId._id) {
 
-                                await updateStudentClass(); // אם צריך פעולה כלשהי
+                                  setStudent(prev => ({
+                                ...prev,
+                                classId: newClassId
+                            }));
                             }
-
 
                         }}
                         options={allClasses}
@@ -445,7 +375,6 @@ const StudentsDemo = () => {
                 </div>
             </Dialog>
         </div>
-    );
+    </>)
 }
-
-export default StudentsDemo;
+export default Students

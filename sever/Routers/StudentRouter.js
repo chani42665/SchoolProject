@@ -11,8 +11,8 @@ const {
     deleteStudent
 } = require("../Controllers/StudentController")
 
-router.post("/createStudent",createStudent)
-router.get("/getAllStudents",getAllStudents)
+router.post("/createStudent",verify, authorizeRoles("admin","teacher"),createStudent)
+router.get("/getAllStudents",verify, authorizeRoles("admin","teacher"),getAllStudents)
 router.get("/getStudentById/:studenId",verify, authorizeRoles("admin","teacher"), getStudentById)
 router.get("/getStudentsByClassId/:classId",verify, authorizeRoles("admin","teacher"), getStudentsByClassId)
 router.put("/updateStudent/:id", updateStudent)
