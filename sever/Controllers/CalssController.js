@@ -49,7 +49,8 @@ async function getClassByStudentId(req,res) {
 // קבלת כל הכיתות
 async function getAllClasses(req, res) {
     try {
-        const classes = await Class.find().populate('students').populate('teachers');
+        const classes = await Class.find()
+        //.populate('students').populate('teachers');
         res.status(200).json(classes);
     } catch (error) {
         res.status(500).json({ message: error.message });
@@ -57,52 +58,52 @@ async function getAllClasses(req, res) {
 }
 
 // הוספת תלמיד לכיתה
-async function addStudentToClass(req, res) {
-    try {
-        const { studentId } = req.params;
-        const student = await Student.findById(studentId);
-        if (!student) {
-            return res.status(404).json({ error: "Student not found" });
-        }
+// async function addStudentToClass(req, res) {
+//     try {
+//         const { studentId } = req.params;
+//         const student = await Student.findById(studentId);
+//         if (!student) {
+//             return res.status(404).json({ error: "Student not found" });
+//         }
 
-        const classId = student.classId;
-        if (!classId) {
-            return res.status(400).json({ error: "Student is not assigned to any class" });
-        }
-        const classObj = await Class.findById(classId);
-        if (!classObj) 
-            return res.status(404).json({ error: "Class not found" });
+//         const classId = student.classId;
+//         if (!classId) {
+//             return res.status(400).json({ error: "Student is not assigned to any class" });
+//         }
+//         const classObj = await Class.findById(classId);
+//         if (!classObj) 
+//             return res.status(404).json({ error: "Class not found" });
 
 
-        //await Student.findByIdAndUpdate(studentId, { classId });
-        classObj.students.push(studentId);
-        await classObj.save();
-        res.status(200).json({ message: "Student added to class" });
-    } catch (error) {
-        res.status(500).json({ message: error.message });
-    }
-}
+//         //await Student.findByIdAndUpdate(studentId, { classId });
+//         classObj.students.push(studentId);
+//         await classObj.save();
+//         res.status(200).json({ message: "Student added to class" });
+//     } catch (error) {
+//         res.status(500).json({ message: error.message });
+//     }
+// }
 
-// הוספת מורה לכיתה
-async function addTeacherToClass(req, res) {
-    try {
-        const { classId, teacherId } = req.body;
-        const classObj = await Class.findById(classId);
-        if (!classObj) 
-            return res.status(404).json({ error: "Class not found" });
-        const teacher = await Teacher.findById(teacherId);
-        if (!teacher) 
-            return res.status(404).json({ error: "Teacher not found" });
+// // הוספת מורה לכיתה
+// async function addTeacherToClass(req, res) {
+//     try {
+//         const { classId, teacherId } = req.body;
+//         const classObj = await Class.findById(classId);
+//         if (!classObj) 
+//             return res.status(404).json({ error: "Class not found" });
+//         const teacher = await Teacher.findById(teacherId);
+//         if (!teacher) 
+//             return res.status(404).json({ error: "Teacher not found" });
 
-        await Teacher.findByIdAndUpdate(teacherId, { $push: { classes: classId } });
-        classObj.teachers.push(teacherId);
-        await classObj.save();
-        res.status(200).json({ message: "Teacher added to class" });
-    } catch (error) {
-        res.status(500).json({ message: error.message });
+//         await Teacher.findByIdAndUpdate(teacherId, { $push: { classes: classId } });
+//         classObj.teachers.push(teacherId);
+//         await classObj.save();
+//         res.status(200).json({ message: "Teacher added to class" });
+//     } catch (error) {
+//         res.status(500).json({ message: error.message });
         
-    }
-}
+//     }
+// }
 
 // עדכון פרטי כיתה
 async function updateClass(req, res) {
@@ -119,65 +120,65 @@ async function updateClass(req, res) {
 }
 
 // הסרת תלמיד מכיתה
-async function removeStudentFromClass(req, res) {
-    try {
-        const { studentId } = req.params;
+// async function removeStudentFromClass(req, res) {
+//     try {
+//         const { studentId } = req.params;
 
-        const student = await Student.findById(studentId);
-        if (!student) {
-            return res.status(404).json({ error: "Student not found" });
-        }
+//         const student = await Student.findById(studentId);
+//         if (!student) {
+//             return res.status(404).json({ error: "Student not found" });
+//         }
 
-        const classId = student.classId;
-        if (!classId) {
-            return res.status(400).json({ error: "Student is not assigned to any class" });
-        }
+//         const classId = student.classId;
+//         if (!classId) {
+//             return res.status(400).json({ error: "Student is not assigned to any class" });
+//         }
 
-        const classObj = await Class.findById(classId);
-        if (!classObj) {
-            return res.status(404).json({ error: "Class not found" });
-        }
+//         const classObj = await Class.findById(classId);
+//         if (!classObj) {
+//             return res.status(404).json({ error: "Class not found" });
+//         }
 
-        // הסרת מזהה התלמיד מרשימת התלמידים בכיתה
-        classObj.students = classObj.students.filter(
-            (_id) => _id.toString() !== studentId
-        );
-        await classObj.save();
+//         // הסרת מזהה התלמיד מרשימת התלמידים בכיתה
+//         classObj.students = classObj.students.filter(
+//             (_id) => _id.toString() !== studentId
+//         );
+//         await classObj.save();
 
-        // הסרת שיוך הכיתה מהתלמיד
-        await Student.findByIdAndUpdate(studentId, { $unset: { classId: "" } });
+//         // הסרת שיוך הכיתה מהתלמיד
+//         // await Student.findByIdAndUpdate(studentId, { $unset: { classId: "" } });
 
-        res.status(200).json({ message: "Student removed from class" });
-    } catch (error) {
-        res.status(500).json({ message: error.message });
-    }
-}
+//         res.status(200).json({ message: "Student removed from class" });
+//     } catch (error) {
+//         res.status(500).json({ message: error.message });
+//     }
+// }
 
 
 // הסרת מורה מכיתה
-async function removeTeacherFromClass(req, res) {
-    try {
-        const { classId, teacherId } = req.body;
-        const classObj = await Class.findById(classId);
-        if (!classObj) return res.status(404).json({ error: "Class not found" });
+// async function removeTeacherFromClass(req, res) {
+//     try {
+//         const { classId, teacherId } = req.body;
+//         const classObj = await Class.findById(classId);
+//         if (!classObj) return res.status(404).json({ error: "Class not found" });
 
-        await Teacher.findByIdAndUpdate(teacherId, { $pull: { classes: classId } });
-        classObj.teachers = classObj.teachers.filter(id => id.toString() !== teacherId);
-        await classObj.save();
-        res.status(200).json({ message: "Teacher removed from class" });
-    } catch (error) {
-        res.status(500).json({ message: error.message });
-    }
-}
+//         await Teacher.findByIdAndUpdate(teacherId, { $pull: { classes: classId } });
+//         classObj.teachers = classObj.teachers.filter(id => id.toString() !== teacherId);
+//         await classObj.save();
+//         res.status(200).json({ message: "Teacher removed from class" });
+//     } catch (error) {
+//         res.status(500).json({ message: error.message });
+//     }
+// }
 
 module.exports = {
     createClass,
     getAllClasses,
     getClassById,
     getClassByStudentId,
-    addStudentToClass,
-    addTeacherToClass,
+    // addStudentToClass,
+    // addTeacherToClass,
     updateClass,
-    removeStudentFromClass,
-    removeTeacherFromClass
+    // removeStudentFromClass,
+    // removeTeacherFromClass
 }
