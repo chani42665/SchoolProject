@@ -132,22 +132,47 @@ const Students=()=>{
         setStudent(emptyStudent);
         toast.current.show({ severity: 'success', summary: 'Successful', detail: 'Student Deleted', life: 3000 });
     };
+    const createStudent=async (newStudent) => {
+        try {
+            const token = localStorage.getItem('token');
+            const response = await axios.post('http://localhost:8080/student/createStudent', newStudent, {
+                headers: {
+                    Authorization: token
+                }
+            });
+            console.log('Student created:', response.data);
+            return response.data.student;
+        } catch (error) {
+            console.error(error);
+        }
+    }
+    const onInputChange = (e, name) => {
+        const val = (e.target && e.target.value) || '';
+        let _student = { ...student };
+        _student[`${name}`] = val;
+        setStudent(_student);
+    };
     const saveStudent = async () => {
         setSubmitted(true);
         if (student.firstName.trim() && student.lastName.trim()) {
             let _students = [...students];
             let _student = { ...student };
-            await updateStudentById()
-            // if (student._id) {
+            _student.classId = student.classId._id;
+           
+            if (student._id) {
+                await updateStudentById()
                 const index = findIndexById(student._id);
                 _students[index] = _student;
                 await updateStudentById();
                 toast.current.show({ severity: 'success', summary: 'Successful', detail: 'Student Updated', life: 3000 });
-            // } else {
-            //     _student.id = createId();
-            //     _students.push(_student);
-            //     toast.current.show({ severity: 'success', summary: 'Successful', detail: 'Student Created', life: 3000 });
-            // }
+            } else {
+                //_student.id = createId();
+                //יצירת תלמיד 
+                console.log("student", _student);
+               const newStudent= await createStudent(_student)
+                _students.push(newStudent);
+                toast.current.show({ severity: 'success', summary: 'Successful', detail: 'Student Created', life: 3000 });
+            }
              // אם צריך פעולה כלשהי
 
             setStudents(_students);
@@ -217,7 +242,7 @@ const Students=()=>{
 
     const actionBodyTemplate = (rowData) => {
         return (
-            <div key={rowData.id}>
+            <div key={rowData}>
                 <Button icon="pi pi-pencil" rounded outlined className="mr-2" onClick={() => editStudent(rowData)} />
                 <Button icon="pi pi-trash" rounded outlined severity="danger" onClick={() => confirmDeleteStudent(rowData)} />
             </div>

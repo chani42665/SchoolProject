@@ -6,16 +6,16 @@ const {
     createTeacher,
     getAllTeachers,
     getTeacherById,
-    getTeachersByClassId,
+    // getTeachersByClassId,
     updateTeacher,
     deleteTeacher
 } = require("../Controllers/TeacherController")
 
-router.post("/createTeacher",verify, authorizeRoles("admin"), createTeacher)
-router.get("/getAllTeachers", verify, authorizeRoles("admin"),getAllTeachers)
-router.get("/getTeacherById/:teacherId",verify, authorizeRoles("admin"), getTeacherById)
-router.get("/getTeachersByClassId/:classId",verify, authorizeRoles("admin"), getTeachersByClassId);
-router.put("/updateTeacher",verify, authorizeRoles("admin"), updateTeacher);
-router.delete("/deleteTeacher/:teacherId",verify, authorizeRoles("admin"), deleteTeacher);
+router.post("/createTeacher", createTeacher)
+router.get("/getAllTeachers",getAllTeachers)
+router.get("/getTeacherById/:teacherId", getTeacherById)
+// router.get("/getTeachersByClassId/:classId", getTeachersByClassId);
+router.put("/updateTeacher/:teacherId", updateTeacher);
+router.delete("/deleteTeacher/:teacherId", deleteTeacher);
 
 module.exports = router

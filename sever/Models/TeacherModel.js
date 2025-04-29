@@ -5,10 +5,11 @@ const teacherModel = new mongoose.Schema({
     firstName: { type: String, required: true },
     lastName: { type: String, required: true },
     email: { type: String, required: true, unique: true },
-    subjects: [{ type: String, required: true }],
+    subjects: [{ type: String }],
     exams: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Exam' }],
-    role: { type: String, enum: ['admin', 'teacher'], default: 'teacher' }, 
-    password : String
+    classes: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Class' }], 
+    role: { type: String, enum: ['admin', 'teacher'], default: 'teacher' },
+    password: { type: String, required: true }
 });
 
 module.exports = mongoose.model('Teacher', teacherModel);

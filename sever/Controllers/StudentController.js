@@ -1,20 +1,29 @@
 const Student = require('../Models/StudentModel');
 const Class = require('../Models/ClassModel');
-const CalssController = require("../Controllers/CalssController")
+const bcrypt = require('bcrypt');
 const mongoose = require('mongoose');
 
 // יצירת תלמיד חדש
 async function createStudent(req, res) {
-    try {
-        const hashedPassword = await bcrypt.hash(req.body.password, 10); // הצפנת הסיסמה
-        const newStudent = new Student({
-            ...req.body,
-            password: hashedPassword
-        });
+    console.log("body:", req.body);
+console.log("classId:", req.body.classId);
+console.log("studentId:", req.body.studentId);
+console.log("email:", req.body.email);
 
+    try {
+
+        const newStudent = new Student(
+            req.body,
+            // password: hashedPassword
+        );
+
+        if(!newStudent.password)
+            newStudent.password = newStudent.studentId
         if (!newStudent.role) {
             newStudent.role = 'student'; // ברירת מחדל ל-role
         }
+        const hashedPassword = await bcrypt.hash(newStudent.password, 10);
+        newStudent.password =hashedPassword
         await newStudent.save();
 
         const { classId } = req.body;
@@ -28,8 +37,10 @@ async function createStudent(req, res) {
 
         res.status(200).json({ message: "Student created successfully", student: newStudent });
     } catch (error) {
+        console.error("Create student failed:", error);
         res.status(400).json({ error: error.message });
     }
+    
 }
 
 // שליפת כל התלמידים

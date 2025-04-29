@@ -1,43 +1,44 @@
 import React from 'react';
-import { useSelector } from 'react-redux';
-import { Card } from 'primereact/card';
-import 'primereact/resources/themes/saga-blue/theme.css';
-import 'primereact/resources/primereact.min.css';
-import 'primeicons/primeicons.css';
-import '../tailwind.css';
-
+import { Button } from 'primereact/button';
+import { useNavigate } from 'react-router-dom';
 
 const Menu = () => {
-     
-    const userObj= useSelector((state) => state.userSlice);
-    const user =userObj.user;
-    const role = user.role;
-    if (!role) {
-        return <p>טוען פרטי משתמש...</p>; // הצגת הודעה אם role לא נמצא
-    }
+  const navigate = useNavigate();
 
-    const cards = Array.from({ length: 6 }, (_, i) => (
-        <div key={i} className="w-full sm:w-1/2 lg:w-1/3 p-2">
-          <Card title={`כרטיס מספר ${i + 1}`} subTitle="תת כותרת">
-            <p>תוכן כלשהו בתוך הכרטיס</p>
-          </Card>
-        </div>
-      ));
+  // מערך של דפים (ניתן להחליף את השמות והנתיבים)
+  const pages = [
+    { name: 'Students', path: '/students' },
+    { name: 'Teachers', path: '/teachers' },
+    { name: 'Classes', path: '/classes' },
+    { name: 'Exams', path: '/exams' },
+    { name: 'Settings', path: '/settings' },
+  ];
 
-    return (
-        <>
-        {/* <div className='menuContainer'></div> */}
-        <div style={{ zIndex: 9999, position: 'relative' }}>
-            {role === 'admin' && <p>ברוך הבא👩‍🦰, מנהל!</p>}
-            {role === 'teacher' && <p>ברוך הבא, מורה!</p>}
-            {role === 'student' && <p>ברוך הבא, תלמיד!</p>}
-        </div>
-        <div className="flex flex-wrap">{cards}</div>
-        </>
-    );
+  return (
+    <div className="min-h-screen bg-gradient-to-r from-blue-500 via-purple-500 to-pink-500 p-6">
+      {/* Toolbar ברוחב מלא */}
+      <div className="w-full bg-white shadow-md rounded-lg p-4 mb-6">
+        <h1 className="text-2xl font-bold text-gray-800 text-center">Main Menu</h1>
+      </div>
+
+      {/* תפריט ריבועים */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+        {pages.map((page, index) => (
+          <div
+            key={index}
+            className="flex justify-center items-center bg-white shadow-lg rounded-lg p-6 hover:shadow-xl transition-shadow duration-300 cursor-pointer"
+            onClick={() => navigate(page.path)}
+          >
+            <Button
+              label={page.name}
+              className="p-button-text text-lg font-semibold text-gray-800"
+              style={{ width: '100%', height: '100%' }}
+            />
+          </div>
+        ))}
+      </div>
+    </div>
+  );
 };
-
-
-
 
 export default Menu;
