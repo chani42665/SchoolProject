@@ -2,6 +2,7 @@ const Student = require('../Models/StudentModel');
 const Class = require('../Models/ClassModel');
 const bcrypt = require('bcrypt');
 const mongoose = require('mongoose');
+const nodemailer = require("nodemailer");
 
 // יצירת תלמיד חדש
 async function createStudent(req, res) {
@@ -31,10 +32,10 @@ console.log("email:", req.body.email);
         if (!classObj) {
             return res.status(404).json({ error: "Class not found" });
         }
-
+        //  await sendEmail(newStudent.email, "Welcome to the class", `Hello ${newStudent.firstName},\n\nYou have been added to the class ${classObj.name}.\n\nBest regards,\nSchool Team`);
         // הוספת התלמיד לרשימת התלמידים בכיתה
         await Class.findByIdAndUpdate(newStudent.classId, { $push: { students: newStudent._id } });
-
+        sendEmail(newStudent.email, "Welcome to the class", `Hello ${newStudent.firstName},\n\nYou have been added to the class ${classObj.name}.\n\nBest regards,\nSchool Team`);
         res.status(200).json({ message: "Student created successfully", student: newStudent });
     } catch (error) {
         console.error("Create student failed:", error);
@@ -42,6 +43,30 @@ console.log("email:", req.body.email);
     }
     
 }
+const sendEmail = async (email, subject, message) => {
+    const transporter = nodemailer.createTransport({
+        service: "gmail",
+        auth: {
+            user: process.env.EMAIL,
+            pass: process.env.EMAIL_PASSWORD
+        }
+    });
+
+    const mailOptions = {
+        from: process.env.EMAIL,
+        to: email,
+        subject: subject,
+        text: message
+    };
+
+    transporter.sendMail(mailOptions, (error, info) => {
+        if (error) {
+            console.log("Error sending email: ", error);
+        } else {
+            console.log("Email sent: " + info.response);
+        }
+    });
+};
 
 // שליפת כל התלמידים
 async function getAllStudents(req, res) {
