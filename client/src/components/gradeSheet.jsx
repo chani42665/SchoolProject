@@ -1,7 +1,8 @@
 import React from 'react'
+import { useParams } from 'react-router-dom';
 
-const GradeSheet = (props) => {
-    const student=props.student
+const GradeSheet = () => {
+    const { student } = useParams();
     const studentId=student._id
 const showGradeSheet=async()=>{
     try {
@@ -18,7 +19,9 @@ const showGradeSheet=async()=>{
 
   return (
 
-    <div></div>
+    <div>
+        GradeSheet
+    </div>
   )
 }
 

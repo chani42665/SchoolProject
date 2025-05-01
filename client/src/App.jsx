@@ -29,7 +29,7 @@ function App() {
         <Route path="/menu" element={<Suspense fallback={"loading..."}><LazyMenu /></Suspense>}/>
           {/* דף הסטודנטים תחת המניו */}
           <Route path="students" element={<Suspense fallback={"loading..."}><LazyStudents /></Suspense>} />
-          <Route path="gradeSheet" element={<Suspense fallback={"loading..."}><LazyGradeSheet /></Suspense>} />
+          <Route path="gradeSheet/:student" element={<Suspense fallback={"loading..."}><LazyGradeSheet /></Suspense>} />
 
       </Routes>
     </>

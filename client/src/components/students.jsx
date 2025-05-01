@@ -13,6 +13,7 @@ import { InputText } from 'primereact/inputtext';
 import axios from 'axios';
 import { Dropdown } from 'primereact/dropdown';
 import { useNavigate } from 'react-router-dom';
+import GradeSheet from './gradeSheet';
 
 
 
@@ -330,10 +331,12 @@ const Students = () => {
                                 label="View Grade sheet"
                                 icon="pi pi-eye"
                                 className="p-button-text p-button-info"
-                                onClick={() => navigate("/cc")}
+                                onClick={() => navigate(`/gradeSheet/${rowData._id}`)}
+                           
                             />
                         )}
-                    ></Column>                    <Column key="action" body={actionBodyTemplate} exportable={false} style={{ minWidth: '12rem' }}></Column>
+                    ></Column>                    
+                    <Column key="action" body={actionBodyTemplate} exportable={false} style={{ minWidth: '12rem' }}></Column>
                 </DataTable>
             </div>
 
