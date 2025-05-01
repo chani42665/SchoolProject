@@ -10,7 +10,7 @@ const teacherRouter = require("./Routers/TeacherRouter")
 const examRouter = require("./Routers/ExamRouter")
 const gradeRouter = require("./Routers/GradeRouter")
 const loginRouter = require("./Routers/AuthRouter")
-
+const scheduleRouter = require("./Routers/scheduleRouter");
 dotenv.config()
 
 app.use(cors())
@@ -42,6 +42,7 @@ app.use("/student",studentRouter)
 app.use("/teacher",teacherRouter)
 app.use("/exam",examRouter)
 app.use("/grade",gradeRouter)
+app.use("/schedule",scheduleRouter)
 
 app.listen(process.env.PORT,()=>{
     console.log(`server is running on port ${process.env.PORT}`);

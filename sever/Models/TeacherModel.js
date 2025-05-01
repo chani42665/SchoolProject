@@ -5,7 +5,7 @@ const teacherModel = new mongoose.Schema({
     firstName: { type: String, required: true },
     lastName: { type: String, required: true },
     email: { type: String, required: true, unique: true },
-    subjects: [{ type: String }],
+    schedules: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Schedule' }],
     exams: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Exam' }],
     classes: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Class' }], 
     role: { type: String, enum: ['admin', 'teacher'], default: 'teacher' },
