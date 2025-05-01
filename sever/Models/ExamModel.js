@@ -1,7 +1,7 @@
 const mongoose = require('mongoose');
 
 const examModel = new mongoose.Schema({
-    examId: { type: mongoose.Schema.Types.ObjectId, auto: true },
+    // examId: { type: mongoose.Schema.Types.ObjectId, auto: true },
     subject: { type: String, required: true },
     examDate: { type: Date, required: true },
     classId: { type: mongoose.Schema.Types.ObjectId, ref: 'Class', required: true },

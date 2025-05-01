@@ -1,13 +1,14 @@
 const express = require("express")
 const router = express.Router()
 const { verify, authorizeRoles } = require("../Middlewares/auth")
-const { createExam, getAllExams, getExamByClassId, updateExam, deleteExam, sendExamReminder } = require("../Controllers/ExamController")
+const { createExam, getAllExams,getExamById, getExamByClassId, updateExam, deleteExam } = require("../Controllers/ExamController")
 
-router.post("/createExam", verify, authorizeRoles("admin","teacher"), createExam)
-router.get("/getAllExams", verify, authorizeRoles("admin","teacher"), getAllExams)
-router.get("/getExamByClassId/:classId", verify, authorizeRoles("admin","teacher","student"), getExamByClassId)
-router.put("/updateExam", verify, authorizeRoles("admin","teacher"),updateExam)
-router.delete("/deleteExam/:examId",verify, authorizeRoles("admin","teacher"), deleteExam)
-router.post("/sendExamReminder",verify, authorizeRoles("admin","teacher"), sendExamReminder)
+router.post("/createExam", createExam)
+router.get("/getAllExams", getAllExams)
+router.get("/getExamByClassId/:classId",getExamByClassId)
+router.get("/getExamById/:examId", getExamById)
+router.put("/updateExam/:examId", updateExam)
+router.delete("/deleteExam/:examId", deleteExam)
+// router.post("/sendExamReminder",verify, authorizeRoles("admin","teacher"), sendExamReminder)
 
 module.exports = router
