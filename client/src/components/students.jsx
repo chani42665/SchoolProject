@@ -12,10 +12,12 @@ import { Dialog } from 'primereact/dialog';
 import { InputText } from 'primereact/inputtext';
 import axios from 'axios';
 import { Dropdown } from 'primereact/dropdown';
+import { useNavigate } from 'react-router-dom';
 
 
 
-const Students=()=>{
+const Students = () => {
+    const navigate = useNavigate();
 
     let emptyStudent = {
         studentId: '',
@@ -23,7 +25,7 @@ const Students=()=>{
         lastName: '',
         email: '',
         classId: {},
-        
+
     };
     const [students, setStudents] = useState([]);
     const [studentDialog, setStudentDialog] = useState(false);
@@ -132,7 +134,7 @@ const Students=()=>{
         setStudent(emptyStudent);
         toast.current.show({ severity: 'success', summary: 'Successful', detail: 'Student Deleted', life: 3000 });
     };
-    const createStudent=async (newStudent) => {
+    const createStudent = async (newStudent) => {
         try {
             const token = localStorage.getItem('token');
             const response = await axios.post('http://localhost:8080/student/createStudent', newStudent, {
@@ -158,7 +160,7 @@ const Students=()=>{
             let _students = [...students];
             let _student = { ...student };
             _student.classId = student.classId._id;
-           
+
             if (student._id) {
                 await updateStudentById()
                 const index = findIndexById(student._id);
@@ -169,11 +171,11 @@ const Students=()=>{
                 //_student.id = createId();
                 //יצירת תלמיד 
                 console.log("student", _student);
-               const newStudent= await createStudent(_student)
+                const newStudent = await createStudent(_student)
                 _students.push(newStudent);
                 toast.current.show({ severity: 'success', summary: 'Successful', detail: 'Student Created', life: 3000 });
             }
-             // אם צריך פעולה כלשהי
+            // אם צריך פעולה כלשהי
 
             setStudents(_students);
             setStudentDialog(false);
@@ -303,9 +305,9 @@ const Students=()=>{
             </div>
         );
     };
-    
-    return(<>
-    <div>
+
+    return (<>
+        <div>
             <Toast ref={toast} />
             <div className="card">
                 <Toolbar className="mb-4" left={leftToolbarTemplate} right={rightToolbarTemplate}></Toolbar>
@@ -318,9 +320,20 @@ const Students=()=>{
                     <Column key="studentId" field="studentId" header="ID" sortable style={{ minWidth: '10rem' }}></Column>
                     <Column key="firstName" field="firstName" header="First Name" sortable style={{ minWidth: '10rem' }}></Column>
                     <Column key="lastName" field="lastName" header="Last Name" sortable style={{ minWidth: '10rem' }}></Column>
-                    <Column key="classId" field="classId.name" header="Class" sortable style={{ minWidth: '10rem' }}></Column>
+                    <Column key="classId" field="classId.name" header="Class" sortable style={{ minWidth: '5rem' }}></Column>
                     <Column key="email" field="email" header="Email" sortable style={{ minWidth: '10rem' }}></Column>
-                    <Column key="action" body={actionBodyTemplate} exportable={false} style={{ minWidth: '12rem' }}></Column>
+                    <Column
+                        field="grades"
+                        header="Grade sheet"
+                        body={(rowData) => (
+                            <Button
+                                label="View Grade sheet"
+                                icon="pi pi-eye"
+                                className="p-button-text p-button-info"
+                                onClick={() => navigate("/cc")}
+                            />
+                        )}
+                    ></Column>                    <Column key="action" body={actionBodyTemplate} exportable={false} style={{ minWidth: '12rem' }}></Column>
                 </DataTable>
             </div>
 
@@ -352,7 +365,7 @@ const Students=()=>{
                         value={student.classId}
                         onChange={async (e) => {
                             const newClassId = e.value;
-                            
+
                             // setNewClass(newClassId._id);
                             // console.log("newClass",newClassId._id);
 
@@ -363,10 +376,10 @@ const Students=()=>{
 
                             if (student.classId !== newClassId._id) {
 
-                                  setStudent(prev => ({
-                                ...prev,
-                                classId: newClassId
-                            }));
+                                setStudent(prev => ({
+                                    ...prev,
+                                    classId: newClassId
+                                }));
                             }
 
                         }}

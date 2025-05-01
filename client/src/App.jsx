@@ -15,6 +15,7 @@ const LazyMenu = React.lazy(() => import('./components/menu'))
 const LazyLogin = React.lazy(() => import('./components/login'));
 const LazyStudents = React.lazy(() => import('./components/students')); // טעינה עצלנית של הסטודנטים
 const LazyTeachers = React.lazy(() => import('./components/teachers')); // טעינה עצלנית של הסטודנטים
+const LazyGradeSheet = React.lazy(() => import('./components/gradeSheet')); // טעינה עצלנית של הסטודנטים
 
 function App() {
   return (
@@ -28,7 +29,7 @@ function App() {
         <Route path="/menu" element={<Suspense fallback={"loading..."}><LazyMenu /></Suspense>}/>
           {/* דף הסטודנטים תחת המניו */}
           <Route path="students" element={<Suspense fallback={"loading..."}><LazyStudents /></Suspense>} />
-          <Route path="teachers" element={<Suspense fallback={"loading..."}><LazyTeachers /></Suspense>} />
+          <Route path="gradeSheet" element={<Suspense fallback={"loading..."}><LazyGradeSheet /></Suspense>} />
 
       </Routes>
     </>

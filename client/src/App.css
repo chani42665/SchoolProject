@@ -1,6 +1,6 @@
 #root {
   max-width: 1280px;
-  margin: 0 auto;
+  margin: 0 auto !important;
   padding: 2rem;
   text-align: center;
 }
@@ -66,4 +66,7 @@
 }
 .w-64 {
   width: 16rem;
+}
+.p-menubar{
+  width: 100% !important; 
 }
