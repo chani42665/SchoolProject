@@ -26,7 +26,7 @@ const getAllSchedules = async (req, res) => {
 const getTeacherSchedule = async (req, res) => {
     try {
         const { teacherId } = req.params;
-        const schedules = await Schedule.find({ teacherId }).populate('classId');
+        const schedules = await Schedule.find({ teacherId }).populate('classId').populate('subject');
         res.status(200).json(schedules);
     } catch (error) {
         res.status(400).json({ message: error.message });
