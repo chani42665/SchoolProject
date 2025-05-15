@@ -23,7 +23,13 @@ async function createGrade(req, res) {
 
 async function getAllGrades(req, res) {
     try {
-        const grades = await Grade.find().populate('studentId').populate('examId')
+        const grades = await Grade.find().populate('studentId').populate('examId').populate({
+            path: 'examId',
+            populate: {
+                path: 'subject',
+                model: 'Subject',
+            }
+        });
         res.status(200).json(grades)
     } catch (error) {
         res.status(500).json({ message: error.message })
@@ -51,7 +57,13 @@ async function getAllGrades(req, res) {
 async function getGradesByStudentId(req, res) {
     try {
         const { studentId } = req.params;
-        const grades = await Grade.find({ studentId }).populate('examId')
+        const grades = await Grade.find({ studentId }).populate('examId').populate({
+            path: 'examId',
+            populate: {
+                path: 'subject',
+                model: 'Subject',
+            }
+        });
         res.status(200).json(grades)
     } catch (error) {
         res.status(500).json({ message: error.message })
