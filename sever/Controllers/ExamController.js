@@ -19,7 +19,7 @@ async function createExam(req, res) {
 // קבלת כל המבחנים
 async function getAllExams(req, res) {
     try {
-        const exams = await Exam.find().populate('classId');
+        const exams = await Exam.find().populate('classId').populate('subject');
         res.status(200).json(exams);
     } catch (error) {
         res.status(500).json({ error: error.message });
@@ -31,7 +31,7 @@ async function getExamByClassId(req, res) {
         const { classId } = req.params;
 
         // שליפת כל המבחנים של הכיתה המבוקשת
-        const exams = await Exam.find({ classId });
+        const exams = await Exam.find({ classId }).populate('subject');
 
         if (!exams || exams.length === 0) {
             return res.status(404).json({ error: "No exams found for this class" });
@@ -45,7 +45,7 @@ async function getExamByClassId(req, res) {
 const getExamById=async (req, res) => {
     try {
         const { examId } = req.params;
-        const exam = await Exam.findById(examId).populate('classId').populate('teacherId');
+        const exam = await Exam.findById(examId).populate('classId').populate('teacherId').populate('subject');
 
         if (!exam) {
             return res.status(404).json({ error: "Exam not found" });
