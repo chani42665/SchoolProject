@@ -100,7 +100,29 @@ async function updateGrade(req, res) {
     }
 }
 
+async function uploadGradesFromExcel(req, res){
+    try {
+      const { examId } = req.params;
+      const { grades } = req.body;
+  
+      for (const g of grades) {
+        const student = await Student.findOne({ studentId: g.studentId });
+        if (student) {
+          await Grade.findOneAndUpdate(
+            { studentId: student._id, examId },
+            { grade: g.grade },
+            { upsert: true, new: true }
+          );
+        }
+      }
+  
+      res.status(200).json({ message: 'הציונים עודכנו בהצלחה' });
+    } catch (error) {
+      console.error('Error uploading grades:', error);
+      res.status(500).json({ message: 'שגיאה בעדכון ציונים' });
+    }
+  };
 
 module.exports = { createGrade, getAllGrades, 
     // getGradeById, 
-    getGradesByStudentId, deleteGrade, updateGrade }
+    getGradesByStudentId, deleteGrade, updateGrade ,uploadGradesFromExcel}

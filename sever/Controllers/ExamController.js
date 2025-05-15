@@ -91,6 +91,21 @@ async function deleteExam(req, res) {
     }
 }
 
+async function getExamsByClassAndTeacher(req, res) {
+    try {
+      const { classId, teacherId } = req.params;
+      const exams = await Exam.find({
+        classId,
+        teacherId,
+      }).populate('subject');
+  
+      res.json(exams);
+    } catch (error) {
+      console.error('Error fetching exams:', error);
+      res.status(500).json({ message: 'שגיאה בקבלת מבחנים' });
+    }
+  };
+
 // async function sendExamReminder(req, res) {
 //     try {
 //         const { examId } = req.body;
@@ -135,4 +150,4 @@ async function deleteExam(req, res) {
 
 module.exports = { createExam, getAllExams, getExamByClassId, updateExam, deleteExam
     // , sendExamReminder
-    ,getExamById };
+    ,getExamById,getExamsByClassAndTeacher };

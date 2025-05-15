@@ -119,6 +119,17 @@ async function updateClass(req, res) {
     }
 }
 
+async function getClassesByTeacher (req, res) {
+    try {
+      const { teacherId } = req.params;
+      const classes = await Class.find({ teachers: teacherId }).populate('students');
+      res.json(classes);
+    } catch (error) {
+      console.error('Error fetching classes:', error);
+      res.status(500).json({ message: 'שגיאה בקבלת כיתות' });
+    }
+  };
+
 // הסרת תלמיד מכיתה
 // async function removeStudentFromClass(req, res) {
 //     try {
@@ -181,4 +192,5 @@ module.exports = {
     updateClass,
     // removeStudentFromClass,
     // removeTeacherFromClass
+    getClassesByTeacher
 }
