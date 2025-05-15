@@ -6,9 +6,9 @@ import { Toolbar } from 'primereact/toolbar';
 import { Dialog } from 'primereact/dialog';
 import { InputText } from 'primereact/inputtext';
 import { MultiSelect } from 'primereact/multiselect';
-import { Dropdown } from 'primereact/dropdown';
 import { Toast } from 'primereact/toast';
 import axios from 'axios';
+import WeeklySchedule from './weeklySchedule';
 
 const Teachers = () => {
     const emptyTeacher = {
@@ -16,27 +16,26 @@ const Teachers = () => {
         firstName: '',
         lastName: '',
         email: '',
-        subjects: [], // מקצועות
+        subjects: [],
         classes: [],
         role: 'teacher',
     };
 
     const [teachers, setTeachers] = useState([]);
     const [allClasses, setAllClasses] = useState([]);
-    const [allSubjects, setAllSubjects] = useState([]); // רשימת מקצועות
+    const [allSubjects, setAllSubjects] = useState([]);
     const [teacherDialog, setTeacherDialog] = useState(false);
-    const [deleteTeacherDialog, setDeleteTeacherDialog] = useState(false);
-    const [teacher, setTeacher] = useState(emptyTeacher);
     const [submitted, setSubmitted] = useState(false);
-    const [expandedRows, setExpandedRows] = useState(null); // ניהול שורות מורחבות
+    const [teacher, setTeacher] = useState(emptyTeacher);
     const toast = useRef(null);
-    const [expandedSubjects, setExpandedSubjects] = useState(null);
+    const [weeklyScheduleDialog, setWeeklyScheduleDialog] = useState(false);
+    const [selectedTeacherId, setSelectedTeacherId] = useState(null);
 
-const toggleSubjects = (teacherId) => {
-    setExpandedSubjects((prev) => (prev === teacherId ? null : teacherId));
-};
+    const openWeeklySchedule = (teacherId) => {
+        setSelectedTeacherId(teacherId);
+        setWeeklyScheduleDialog(true);
+    };
 
-    // Fetch teachers, classes, and subjects
     const fetchTeachers = async () => {
         try {
             const token = localStorage.getItem('token');
@@ -78,7 +77,6 @@ const toggleSubjects = (teacherId) => {
 
     const saveTeacher = async () => {
         setSubmitted(true);
-
         if (teacher.firstName.trim() && teacher.lastName.trim() && teacher.email.trim()) {
             try {
                 const token = localStorage.getItem('token');
@@ -147,21 +145,6 @@ const toggleSubjects = (teacherId) => {
         );
     };
 
-    const rowExpansionTemplate = (rowData) => {
-        return (
-            <div className="p-3">
-                <h5 className="mb-3">Subjects</h5>
-                <ul className="list-disc pl-5">
-                    {rowData.subjects.map((subject, index) => (
-                        <li key={index} className="text-gray-800 text-sm">
-                            {subject}
-                        </li>
-                    ))}
-                </ul>
-            </div>
-        );
-    };
-
     return (
         <div className="grid p-4">
             <Toast ref={toast} />
@@ -172,49 +155,45 @@ const toggleSubjects = (teacherId) => {
                 )}
             />
 
-<DataTable
-    value={teachers}
-    paginator
-    rows={10}
-    dataKey="_id"
-    responsiveLayout="scroll"
->
-    <Column field="teacherId" header="ID" sortable></Column>
-    <Column field="firstName" header="First Name" sortable></Column>
-    <Column field="lastName" header="Last Name" sortable></Column>
-    <Column field="email" header="Email" sortable></Column>
-    <Column
-    field="subjects"
-    header="Subjects"
-    body={(rowData) => (
-        <div>
-            <Button
-                label="View Subjects"
-                icon="pi pi-chevron-down"
-                className="p-button-text p-button-sm"
-                onClick={() => toggleSubjects(rowData.teacherId)}
-            />
-            {expandedSubjects === rowData.teacherId && (
-                <div className="absolute bg-white shadow-lg border rounded-lg p-3 mt-2 z-10">
-                    {rowData.subjects.length > 0 ? (
-                        <ul className="list-disc pl-5">
-                            {rowData.subjects.map((subject, index) => (
-                                <li key={index} className="text-gray-800 text-sm">
-                                    {subject}
-                                </li>
-                            ))}
-                        </ul>
-                    ) : (
-                        <span className="text-gray-500 text-sm">No subjects available</span>
+            <DataTable
+                value={teachers}
+                paginator
+                rows={10}
+                dataKey="_id"
+                responsiveLayout="scroll"
+            >
+                <Column field="teacherId" header="ID" sortable></Column>
+                <Column field="firstName" header="First Name" sortable></Column>
+                <Column field="lastName" header="Last Name" sortable></Column>
+                <Column field="email" header="Email" sortable></Column>
+                <Column
+                    field="subjects"
+                    header="Subjects"
+                    body={(rowData) => (
+                        <div>
+                            {/* {rowData.subjects.length > 0 ? (
+                                <ul className="list-disc pl-5">
+                                    {rowData.subjects.map((subject, index) => (
+                                        <li key={index} className="text-gray-800 text-sm">
+                                            {subject}
+                                        </li>
+                                    ))}
+                                </ul>
+                            ) : (
+                                <span className="text-gray-500 text-sm">No subjects available</span>
+                            )} */}
+                            <Button
+                                label="View Weekly Schedule"
+                                icon="pi pi-calendar"
+                                className="p-button-text p-button-sm mt-2"
+                                onClick={() => openWeeklySchedule(rowData._id)}
+                            />
+                        </div>
                     )}
-                </div>
-            )}
-        </div>
-    )}
-></Column>
-    <Column field="role" header="Role" sortable></Column>
-    <Column body={actionBodyTemplate} header="Actions"></Column>
-</DataTable>
+                ></Column>
+                <Column field="role" header="Role" sortable></Column>
+                <Column body={actionBodyTemplate} header="Actions"></Column>
+            </DataTable>
 
             <Dialog visible={teacherDialog} style={{ width: '450px' }} header="Teacher Details" modal footer={teacherDialogFooter} onHide={hideDialog}>
                 <div className="field">
@@ -233,28 +212,20 @@ const toggleSubjects = (teacherId) => {
                     {submitted && !teacher.email && <small className="p-error">Email is required.</small>}
                 </div>
                 <div className="field">
-                    <label htmlFor="subjects">Subjects</label>
+                    <label htmlFor="classes">Classes</label>
                     <MultiSelect
-                        id="subjects"
-                        value={teacher.subjects}
-                        options={allSubjects}
-                        onChange={(e) => onInputChange(e, 'subjects')}
-                        placeholder="Select Subjects"
+                        id="classes"
+                        value={teacher.classes}
+                        options={allClasses}
+                        onChange={(e) => onInputChange(e, 'classes')}
+                        optionLabel="name"
+                        placeholder="Select Classes"
                         className="w-full"
                     />
                 </div>
-                <div className="field">
-    <label htmlFor="classes">Classes</label>
-    <MultiSelect
-        id="classes"
-        value={teacher.classes}
-        options={allClasses}
-        onChange={(e) => onInputChange(e, 'classes')}
-        optionLabel="name" // הצגת שם הכיתה
-        placeholder="Select Classes"
-        className="w-full"
-    />
-</div>
+            </Dialog>
+            <Dialog visible={weeklyScheduleDialog} style={{ width: '70vw' }} header="Weekly Schedule" modal onHide={() => setWeeklyScheduleDialog(false)}>
+                <WeeklySchedule teacherId={selectedTeacherId} />
             </Dialog>
         </div>
     );

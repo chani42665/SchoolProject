@@ -5,6 +5,7 @@ const teacherModel = new mongoose.Schema({
     firstName: { type: String, required: true },
     lastName: { type: String, required: true },
     email: { type: String, required: true, unique: true },
+    schedules: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Schedule' }],
     subjects: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Subject' }],
     exams: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Exam' }],
     classes: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Class' }], 

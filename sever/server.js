@@ -10,8 +10,8 @@ const teacherRouter = require("./Routers/TeacherRouter")
 const examRouter = require("./Routers/ExamRouter")
 const gradeRouter = require("./Routers/GradeRouter")
 const loginRouter = require("./Routers/AuthRouter")
+const scheduleRouter = require("./Routers/scheduleRouter");
 const subjectRouter = require("./Routers/SubjectRouter")
-
 dotenv.config()
 
 app.use(cors())
@@ -43,6 +43,7 @@ app.use("/student",studentRouter)
 app.use("/teacher",teacherRouter)
 app.use("/exam",examRouter)
 app.use("/grade",gradeRouter)
+app.use("/schedule",scheduleRouter)
 app.use("/subject",subjectRouter)
 
 app.listen(process.env.PORT,()=>{

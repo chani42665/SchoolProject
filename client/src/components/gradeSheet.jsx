@@ -21,14 +21,12 @@ const GradeSheet = () => {
     const userObj = useSelector((state) => state.userSlice);
     const user = userObj.user;
     const isTeacherOrAdmin = user?.role === 'teacher' || user?.role === 'admin';
-
     const [student, setStudent] = useState(emptyStudent);
     const [grades, setGrades] = useState([]);
     const [subjectData, setSubjectData] = useState([]);
     const [expandedRows, setExpandedRows] = useState(null);
     const [editingRowId, setEditingRowId] = useState(null);
     const [editedGrade, setEditedGrade] = useState(null);
-
     useEffect(() => {
         getStudent();
         getStudentGrades();
@@ -42,7 +40,6 @@ const GradeSheet = () => {
             });
 
             const grades = response.data;
-
             const groupedData = grades.reduce((acc, grade) => {
                 const { grade: gradeValue, examId } = grade;
                 const subject = examId.subject.name;
