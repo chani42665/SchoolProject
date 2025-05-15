@@ -15,6 +15,7 @@ const LazyLogin = lazy(() => import('./components/login'));
 const LazyStudents = lazy(() => import('./components/students')); // טעינה עצלנית של הסטודנטים
 const LazyTeachers = lazy(() => import('./components/teachers')); // טעינה עצלנית של הסטודנטים
 const LazyGradeSheet = lazy(() => import('./components/gradeSheet')); // טעינה עצלנית של הסטודנטים
+const LazyClasses = lazy(() => import('./components/classes'));
 
 function App() {
   return (
@@ -26,6 +27,7 @@ function App() {
         <Route path="students" element={<Suspense fallback={"loading..."}><LazyStudents /></Suspense>} />
         <Route path="teachers" element={<Suspense fallback={"loading..."}><LazyTeachers /></Suspense>} />
         <Route path="gradeSheet/:studentId" element={<Suspense fallback={"loading..."}><LazyGradeSheet /></Suspense>} />
+        <Route path="classes" element={<Suspense fallback={"loading..."}><LazyClasses /></Suspense>} />
       </Routes>
     </>
   );
