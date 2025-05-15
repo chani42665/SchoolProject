@@ -5,7 +5,6 @@ import { InputText } from 'primereact/inputtext';
 import { Button } from 'primereact/button';
 import { Dropdown } from 'primereact/dropdown';
 import { FiEdit, FiTrash } from 'react-icons/fi';
-// import '../WeeklySchedule.css'
 
 const WeeklySchedule = ({ teacherId }) => {
     const [schedule, setSchedule] = useState([]);
@@ -14,6 +13,7 @@ const WeeklySchedule = ({ teacherId }) => {
     const [confirmDeleteVisible, setConfirmDeleteVisible] = useState(false);
     const [classToDelete, setClassToDelete] = useState(null);
     const [classes, setClasses] = useState([]);
+    const [subjects, setSubjects] = useState([]); // הוספת מצב עבור מקצועות
     const [newSubject, setNewSubject] = useState('');
     const [addLessonDialogVisible, setAddLessonDialogVisible] = useState(false);
     const [selectedClassId, setSelectedClassId] = useState(null);
@@ -42,12 +42,24 @@ const WeeklySchedule = ({ teacherId }) => {
             }
         };
 
+        const fetchSubjects = async () => { 
+            try {
+                const response = await axios.get('http://localhost:8080/subject/getSubjects'); // הנחתי שיש API כזה
+                setSubjects(response.data);
+            } catch (error) {
+                console.error('Error fetching subjects:', error);
+            }
+        };
+
         if (teacherId) {
             fetchSchedule();
             fetchClasses();
+            fetchSubjects(); // קריאה לפונקציה לקבלת מקצועות
+        } else {
+            console.error("teacherId is not defined");
         }
-    }, [teacherId]);
-
+    }, [teacherId,schedule]);
+   
     const daysOfWeek = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday'];
     const hours = ['1', '2', '3', '4', '5', '6', '7', '8'];
 
@@ -106,18 +118,21 @@ const WeeklySchedule = ({ teacherId }) => {
         try {
             const newSchedule = {
                 teacherId: teacherId,
-                subject: newSubject,
+                subject: newSubject._id,
                 classId: selectedClassId._id,
                 day: selectedDay,
                 time: selectedHour,
             };
             const response = await axios.post('http://localhost:8080/schedule/createSchedule', newSchedule);
-            setSchedule([...schedule, response.data]);
+            setSchedule(prevSchedule => [...prevSchedule, response.data]); // ע
             setAddLessonDialogVisible(false);
+            //fetchSchedule(); // הוספת קריאה זו
+
         } catch (error) {
             console.error('Error creating schedule:', error);
         }
     };
+
     const openDeleteConfirmation = (subject) => {
         setClassToDelete(subject);
         setConfirmDeleteVisible(true);
@@ -151,8 +166,9 @@ const WeeklySchedule = ({ teacherId }) => {
                                     <td key={day} style={{ padding: '10px', textAlign: 'center', border: '1px solid #ccc' }}>
                                         {subject ? (
                                             <div>
-                                                <div style={{ fontWeight: 'bold' }}>{subject.subject}</div>
-                                                <div>{subject.classId.name || selectedClassId.name}</div>
+                                                <div>{subject.subject ? subject.subject.name : 'לא זוהה'}</div>
+                                                <div>{subject.classId ? subject.classId.name : 'לא זוהה'}</div>
+
                                                 <div style={{ marginTop: '5px' }}>
                                                     <Button
                                                         icon={<FiEdit style={{ color: 'green', fontSize: '16px' }} />}
@@ -181,14 +197,14 @@ const WeeklySchedule = ({ teacherId }) => {
                 <div>
                     <label>בחר כיתה:</label>
                     <Dropdown value={selectedClassId} options={classes} onChange={(e) => setSelectedClassId(e.value)} optionLabel="name" placeholder="בחר כיתה" />
-                    <label>נושא:</label>
-                    <InputText value={newSubject} onChange={(e) => setNewSubject(e.target.value)} />
+                    <label>בחר מקצוע:</label>
+                    <Dropdown value={newSubject} options={subjects} onChange={(e) => setNewSubject(e.value)} optionLabel="name" placeholder="בחר מקצוע" />
                 </div>
                 <Button label="שמור" onClick={createSchedule} />
             </Dialog>
 
             <Dialog visible={confirmDeleteVisible} header="אישור מחיקה" onHide={() => setConfirmDeleteVisible(false)}>
-                <p>האם אתה בטוח שברצונך למחוק את השיעור: {classToDelete ? classToDelete.subject : ''}?</p>
+                <p>האם אתה בטוח שברצונך למחוק את השיעור: {classToDelete ? classToDelete.subject.name : ''}?</p>
                 <Button label="כן" onClick={deleteClass} />
                 <Button label="לא" onClick={() => setConfirmDeleteVisible(false)} />
             </Dialog>
@@ -197,8 +213,8 @@ const WeeklySchedule = ({ teacherId }) => {
                 <div>
                     <label>בחר כיתה:</label>
                     <Dropdown value={editClassId} options={classes} onChange={(e) => setEditClassId(e.value)} optionLabel="name" placeholder="בחר כיתה" />
-                    <label>נושא:</label>
-                    <InputText value={editSubject} onChange={(e) => setEditSubject(e.target.value)} />
+                    <label>בחר מקצוע:</label>
+                    <Dropdown value={editSubject} options={subjects} onChange={(e) => setEditSubject(e.value)} optionLabel="name" placeholder="בחר מקצוע" />
                 </div>
                 <Button label="עדכן" onClick={updateSchedule} />
             </Dialog>
