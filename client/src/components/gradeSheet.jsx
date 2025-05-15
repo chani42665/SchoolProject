@@ -45,7 +45,7 @@ const GradeSheet = () => {
 
             const groupedData = grades.reduce((acc, grade) => {
                 const { grade: gradeValue, examId } = grade;
-                const subject = examId.subject;
+                const subject = examId.subject.name;
                 const date = examId.examDate;
 
                 if (!acc[subject]) {
