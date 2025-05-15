@@ -1,14 +1,14 @@
-import React, { useState, useEffect, useRef } from 'react';
-import { DataTable } from 'primereact/datatable';
-import { Column } from 'primereact/column';
-import { Button } from 'primereact/button';
-import { Toolbar } from 'primereact/toolbar';
-import { Dialog } from 'primereact/dialog';
-import { InputText } from 'primereact/inputtext';
-import { MultiSelect } from 'primereact/multiselect';
-import { Toast } from 'primereact/toast';
-import axios from 'axios';
-import WeeklySchedule from './weeklySchedule';
+import React, { useState, useEffect, useRef } from 'react'
+import { DataTable } from 'primereact/datatable'
+import { Column } from 'primereact/column'
+import { Button } from 'primereact/button'
+import { Toolbar } from 'primereact/toolbar'
+import { Dialog } from 'primereact/dialog'
+import { InputText } from 'primereact/inputtext'
+import { MultiSelect } from 'primereact/multiselect'
+import { Toast } from 'primereact/toast'
+import axios from 'axios'
+import WeeklySchedule from './weeklySchedule'
 
 const Teachers = () => {
     const emptyTeacher = {
@@ -30,6 +30,8 @@ const Teachers = () => {
     const toast = useRef(null);
     const [weeklyScheduleDialog, setWeeklyScheduleDialog] = useState(false);
     const [selectedTeacherId, setSelectedTeacherId] = useState(null);
+    const [deleteTeacherDialog, setDeleteTeacherDialog] = useState(false);
+    const [teacherToDelete, setTeacherToDelete] = useState(null);
 
     const openWeeklySchedule = (teacherId) => {
         setSelectedTeacherId(teacherId);
@@ -136,6 +138,33 @@ const Teachers = () => {
         </React.Fragment>
     );
 
+    const editTeacher = (teacher) => {
+        setTeacher({ ...teacher });
+        setTeacherDialog(true);
+    };
+
+    const confirmDeleteTeacher = (teacher) => {
+        setTeacherToDelete(teacher);
+        setDeleteTeacherDialog(true);
+    };
+
+    const deleteTeacher = async () => {
+        const token = localStorage.getItem('token');
+        try {
+            await axios.delete(`http://localhost:8080/teacher/deleteTeacher/${teacherToDelete._id}`, {
+                headers: { Authorization: token },
+            });
+            const updatedTeachers = teachers.filter(t => t._id !== teacherToDelete._id);
+            setTeachers(updatedTeachers);
+            toast.current.show({ severity: 'success', summary: 'Successful', detail: 'Teacher Deleted', life: 3000 });
+            setDeleteTeacherDialog(false);
+        } catch (error) {
+            console.error('Error deleting teacher:', error);
+            toast.current.show({ severity: 'error', summary: 'Error', detail: 'Failed to delete teacher', life: 3000 });
+            setDeleteTeacherDialog(false);
+        }
+    };
+
     const actionBodyTemplate = (rowData) => {
         return (
             <React.Fragment>
@@ -171,17 +200,6 @@ const Teachers = () => {
                     header="Subjects"
                     body={(rowData) => (
                         <div>
-                            {/* {rowData.subjects.length > 0 ? (
-                                <ul className="list-disc pl-5">
-                                    {rowData.subjects.map((subject, index) => (
-                                        <li key={index} className="text-gray-800 text-sm">
-                                            {subject}
-                                        </li>
-                                    ))}
-                                </ul>
-                            ) : (
-                                <span className="text-gray-500 text-sm">No subjects available</span>
-                            )} */}
                             <Button
                                 label="View Weekly Schedule"
                                 icon="pi pi-calendar"
@@ -197,6 +215,11 @@ const Teachers = () => {
 
             <Dialog visible={teacherDialog} style={{ width: '450px' }} header="Teacher Details" modal footer={teacherDialogFooter} onHide={hideDialog}>
                 <div className="field">
+                    <label htmlFor="teacherId">ID</label>
+                    <InputText id="teacherId" value={teacher.teacherId} onChange={(e) => onInputChange(e, 'teacherId')} required />
+                    {submitted && !teacher.teacherId && <small className="p-error">ID is required.</small>}
+                </div>
+                <div className="field">
                     <label htmlFor="firstName">First Name</label>
                     <InputText id="firstName" value={teacher.firstName} onChange={(e) => onInputChange(e, 'firstName')} required />
                     {submitted && !teacher.firstName && <small className="p-error">First Name is required.</small>}
@@ -211,21 +234,21 @@ const Teachers = () => {
                     <InputText id="email" value={teacher.email} onChange={(e) => onInputChange(e, 'email')} required />
                     {submitted && !teacher.email && <small className="p-error">Email is required.</small>}
                 </div>
-                <div className="field">
-                    <label htmlFor="classes">Classes</label>
-                    <MultiSelect
-                        id="classes"
-                        value={teacher.classes}
-                        options={allClasses}
-                        onChange={(e) => onInputChange(e, 'classes')}
-                        optionLabel="name"
-                        placeholder="Select Classes"
-                        className="w-full"
-                    />
-                </div>
             </Dialog>
+
             <Dialog visible={weeklyScheduleDialog} style={{ width: '70vw' }} header="Weekly Schedule" modal onHide={() => setWeeklyScheduleDialog(false)}>
                 <WeeklySchedule teacherId={selectedTeacherId} />
+            </Dialog>
+
+            <Dialog visible={deleteTeacherDialog} style={{ width: '450px' }} header="Confirm Delete" modal onHide={() => setDeleteTeacherDialog(false)}>
+                <div className="confirmation-content">
+                    <i className="pi pi-exclamation-triangle" style={{ fontSize: '2rem', marginRight: '1rem' }} />
+                    {teacherToDelete && <span>Are you sure you want to delete <b>{teacherToDelete.firstName} {teacherToDelete.lastName}</b>?</span>}
+                </div>
+                <div className="dialog-footer">
+                    <Button label="No" icon="pi pi-times" onClick={() => setDeleteTeacherDialog(false)} />
+                    <Button label="Yes" icon="pi pi-check" onClick={deleteTeacher} />
+                </div>
             </Dialog>
         </div>
     );
