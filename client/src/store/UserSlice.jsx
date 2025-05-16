@@ -33,11 +33,15 @@ const userSlice = createSlice({
     initialState: initialValue,
     reducers: {
         logoutUser: (state) => {
-            state.email = '';
-            state.password = '';
+            localStorage.removeItem("user");
+            localStorage.removeItem("token");
             state.user = null;
             state.status = 'idle';
             state.error = null;
+        },
+        setUser: (state, action) => {
+            state.user = action.payload;
+            state.status = 'succeeded';
         }
     },
     extraReducers: (builder) => {
@@ -49,6 +53,8 @@ const userSlice = createSlice({
             .addCase(createUser.fulfilled, (state, action) => {
                 state.user = action.payload.user; // שמירה של כל פרטי המשתמש
                 state.status = 'succeeded';
+                localStorage.setItem("user", JSON.stringify(action.payload.user));
+
             })
             .addCase(createUser.rejected, (state, action) => {
                 state.status = 'failed';
@@ -57,5 +63,5 @@ const userSlice = createSlice({
     }
 });
 
-export const { logoutUser } = userSlice.actions;
+export const { logoutUser ,setUser } = userSlice.actions;
 export default userSlice.reducer;

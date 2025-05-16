@@ -2,6 +2,8 @@ const Class = require('../Models/ClassModel');
 const Student = require('../Models/StudentModel');
 const Teacher = require('../Models/TeacherModel');
 
+const {createStudent} = require("./StudentController")
+
 async function createClass(req, res) {
     try {
         const { studentIds, teacherIds, ...classData } = req.body;
@@ -130,6 +132,40 @@ async function getClassesByTeacher (req, res) {
     }
   };
 
+  // לדוגמה ב-class.routes.js
+    async function addStudentsFromExcel(req, res) {
+     const { classId } = req.params;
+    const { students } = req.body;
+
+    try {
+        for (let studentData of students) {
+            // מוסיפים classId ידנית אם לא קיים
+            if (!studentData.classId) {
+                studentData.classId = classId;
+            }
+
+            // מוודאים שיש studentId
+            if (!studentData.studentId) {
+                continue; // או את יכולה לזרוק שגיאה
+            }
+
+            // יוצרים בקשה מזויפת כדי לקרוא ל-createStudent כאילו זה route רגיל
+            const fakeReq = { body: studentData };
+            const fakeRes = {
+                status: () => ({ json: () => {} }),
+                json: () => {},
+            };
+
+            await createStudent(fakeReq, fakeRes);
+        }
+
+        res.send("כל התלמידות מהקובץ נוספו בהצלחה");
+    } catch (err) {
+        console.error(err);
+        res.status(500).send("שגיאה בעת יצירת תלמידים מהקובץ");
+    }
+}
+
 // הסרת תלמיד מכיתה
 // async function removeStudentFromClass(req, res) {
 //     try {
@@ -192,5 +228,6 @@ module.exports = {
     updateClass,
     // removeStudentFromClass,
     // removeTeacherFromClass
-    getClassesByTeacher
+    getClassesByTeacher,
+    addStudentsFromExcel
 }
