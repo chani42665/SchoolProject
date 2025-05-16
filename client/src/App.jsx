@@ -5,8 +5,10 @@ import 'primeicons/primeicons.css';
 import './tailwind.css'
 import './index.css'
 import { Route, Routes } from 'react-router-dom'
-import React, { lazy, Suspense } from 'react';
+import React, { lazy, Suspense, useEffect } from 'react';
 import AppBar from './components/appBar';
+import { useDispatch } from 'react-redux';
+import { setUser } from './store/UserSlice';
 
 
 
@@ -18,6 +20,15 @@ const LazyGradeSheet = lazy(() => import('./components/gradeSheet')); // טעי�
 const LazyClasses = lazy(() => import('./components/classes'));
 
 function App() {
+
+  const dispatch = useDispatch();
+  useEffect(() => {
+    const savedUser = localStorage.getItem('user');
+    if (savedUser) {
+      dispatch(setUser(JSON.parse(savedUser)));
+    }
+  }, []);
+
   return (
     <>
       <AppBar />

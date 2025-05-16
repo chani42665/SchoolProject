@@ -26,7 +26,7 @@ const AppBar = () => {
 
   const start = (
     <span
-      className="text-[#CF885B] text-3xl font-bold cursor-pointer"
+      className="text-3xl font-bold cursor-pointer"
       onClick={() => navigate('/')}
     >
       School
@@ -38,7 +38,7 @@ const AppBar = () => {
       <Avatar
         label={user.firstName[0]}
         shape="circle"
-        className="bg-[#CF885B] text-black cursor-pointer"
+        className=" text-black cursor-pointer"
         size="large"
         onClick={(e) => op.current.toggle(e)}
       />
@@ -58,7 +58,7 @@ const AppBar = () => {
   ) : (
     <Button
       label="התחבר"
-      className="p-button-text text-[#CF885B]"
+      className="p-button-text"
       onClick={handleLogin}
     />
   );
@@ -68,7 +68,7 @@ const AppBar = () => {
       <Menubar
         start={start}
         end={end}
-        className="w-full bg-black text-[#CF885B] border-none px-4"
+        className="w-full bg-black border-none px-4"
       />
     </div>
   );
