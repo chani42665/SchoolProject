@@ -9,6 +9,7 @@ import React, { lazy, Suspense, useEffect } from 'react';
 import AppBar from './components/appBar';
 import { useDispatch } from 'react-redux';
 import { setUser } from './store/UserSlice';
+import ExamSchedule from './components/examSchedule';
 
 
 
@@ -32,6 +33,7 @@ function App() {
   return (
     <>
       <AppBar />
+      <ExamSchedule classObj={'68067d981b2889ce6c6b573a'}/>
       <Routes>
         <Route path="/" element={<Suspense fallback={"loading..."}><LazyLogin /></Suspense>} />        
         <Route path="/menu" element={<Suspense fallback={"loading..."}><LazyMenu /></Suspense>}/>

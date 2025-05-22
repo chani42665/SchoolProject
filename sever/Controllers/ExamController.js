@@ -31,7 +31,7 @@ async function getExamByClassId(req, res) {
         const { classId } = req.params;
 
         // שליפת כל המבחנים של הכיתה המבוקשת
-        const exams = await Exam.find({ classId }).populate('subject');
+        const exams = await Exam.find({ classId }).populate('subject').populate('teacherId');
 
         if (!exams || exams.length === 0) {
             return res.status(404).json({ error: "No exams found for this class" });
