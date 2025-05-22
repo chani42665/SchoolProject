@@ -9,6 +9,7 @@ import React, { lazy, Suspense, useEffect } from 'react';
 import AppBar from './components/appBar';
 import { useDispatch } from 'react-redux';
 import { setUser } from './store/UserSlice';
+import Graph from './components/graph';
 
 
 
@@ -32,8 +33,9 @@ function App() {
   return (
     <>
       <AppBar />
+      <Graph classId="68067d981b2889ce6c6b573a" teacherId="6804f3623f134111b0fa103a" />
       <Routes>
-        <Route path="/" element={<Suspense fallback={"loading..."}><LazyLogin /></Suspense>} />        
+         <Route path="/" element={<Suspense fallback={"loading..."}><LazyLogin /></Suspense>} />         
         <Route path="/menu" element={<Suspense fallback={"loading..."}><LazyMenu /></Suspense>}/>
         <Route path="students" element={<Suspense fallback={"loading..."}><LazyStudents /></Suspense>} />
         <Route path="teachers" element={<Suspense fallback={"loading..."}><LazyTeachers /></Suspense>} />

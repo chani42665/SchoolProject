@@ -1,5 +1,6 @@
 const mongoose = require('mongoose')
 const Subject = require('../Models/SubjectModel')
+const Teacher = require('../Models/TeacherModel')
 
 const createSubject = async (req, res) => {
     const  subjectData  = req.body;
@@ -39,6 +40,21 @@ const getSubjectById = async (req, res) => {
         res.status(500).send('Server Error');
     }
 };
+const getSubjectsByTeacherId = async (req, res) => {
+    const { teacherId } = req.params;
+    try {
+        const teacher = await Teacher.findById(teacherId).populate('subjects');
+
+        if (!teacher || !teacher.subjects ) {
+            return res.status(404).send('No subjects found for this teacher');
+        }
+
+        res.status(200).json(teacher.subjects);
+    } catch (error) {
+        console.error('Error fetching subjects by teacher ID:', error);
+        res.status(500).send('Server Error');
+    }
+};
 
 const updateSubject = async (req, res) => {
     const  {id}  = req.params; 
@@ -71,5 +87,5 @@ const deleteSubject = async (req, res) => {
 };
 
 module.exports = {
-    deleteSubject, updateSubject, getSubjects, createSubject,getSubjectById
+    deleteSubject, updateSubject, getSubjects, createSubject,getSubjectById,getSubjectsByTeacherId
 };

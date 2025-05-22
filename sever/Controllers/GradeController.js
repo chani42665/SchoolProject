@@ -1,5 +1,7 @@
 const Grade = require('../Models/GradeModel')
 const Student = require('../Models/StudentModel')
+const Exam = require('../Models/ExamModel')
+const mongoose = require('mongoose')
 
 async function createGrade(req, res) {
     try {
@@ -106,7 +108,7 @@ async function uploadGradesFromExcel(req, res){
       const { grades } = req.body;
   
       for (const g of grades) {
-        const student = await Student.findOne({ studentId: g.studentId });
+        const student = await Student.findOne({ studentId: g.studentId })
         if (student) {
           await Grade.findOneAndUpdate(
             { studentId: student._id, examId },
@@ -116,13 +118,72 @@ async function uploadGradesFromExcel(req, res){
         }
       }
   
-      res.status(200).json({ message: 'הציונים עודכנו בהצלחה' });
+      res.status(200).json({ message: 'הציונים עודכנו בהצלחה' })
     } catch (error) {
       console.error('Error uploading grades:', error);
-      res.status(500).json({ message: 'שגיאה בעדכון ציונים' });
+      res.status(500).json({ message: 'שגיאה בעדכון ציונים' })
     }
   };
-
+  const getGradesByExamAndClass = async (req, res) => {
+    try {
+      const { examId } = req.params
+  
+      const grades = await Grade.find({ examId }).populate('studentId').populate('examId')
+  
+      res.status(200).json(grades)
+    } catch (error) {
+      console.error('Error fetching grades:', error)
+      res.status(500).json({ message: 'שגיאה בקבלת ציונים' })
+    }
+  };
+  const getAverageGradeBySubjectOfYear = async (req, res) => {
+    try {
+      const { subjectId, classId, teacherId, year } = req.query
+      const startDate = new Date(year, 0, 1)
+      const endDate = new Date(year + 1, 0, 1)
+  
+      const exams = await Exam.find({
+        subject: new mongoose.Types.ObjectId(subjectId),
+        classId: new mongoose.Types.ObjectId(classId),
+        teacherId:new mongoose.Types.ObjectId(teacherId),
+        examDate: { $gte: startDate, $lt: endDate }
+      });
+  
+      if (exams.length === 0) {
+        return res.json([])
+      }
+  
+      const examIds = exams.map(exam => exam._id)
+  
+      const gradesAggregation = await Grade.aggregate([
+        { $match: { examId: { $in: examIds } } },
+        {
+          $group: {
+            _id: '$examId',
+            averageGrade: { $avg: '$grade' },
+          },
+        },
+      ]);
+  
+      const results = exams.map(exam => {
+        const gradeObj = gradesAggregation.find(g => g._id.equals(exam._id))
+        return {
+          examId: exam._id,
+          examDate: exam.examDate,
+          averageGrade: gradeObj ? gradeObj.averageGrade : null,
+        };
+      });
+  
+      results.sort((a, b) => a.examDate - b.examDate)
+  
+      res.json(results)
+  
+    } catch (error) {
+      res.status(500).json({ error: 'Error fetching average grades: ' + error.message });
+    }
+  };
+  
+  
 module.exports = { createGrade, getAllGrades, 
     // getGradeById, 
-    getGradesByStudentId, deleteGrade, updateGrade ,uploadGradesFromExcel}
+    getGradesByStudentId, deleteGrade, updateGrade ,uploadGradesFromExcel,getGradesByExamAndClass,getAverageGradeBySubjectOfYear}

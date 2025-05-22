@@ -2,6 +2,7 @@ const Exam = require('../Models/ExamModel');
 const Student = require('../Models/StudentModel');
 const Teacher = require('../Models/TeacherModel')
 const nodemailer = require('nodemailer');
+const mongoose = require('mongoose');
 
 
 async function createExam(req, res) {
@@ -90,7 +91,6 @@ async function deleteExam(req, res) {
         res.status(500).json({ error: error.message });
     }
 }
-
 async function getExamsByClassAndTeacher(req, res) {
     try {
       const { classId, teacherId } = req.params;
@@ -105,6 +105,52 @@ async function getExamsByClassAndTeacher(req, res) {
       res.status(500).json({ message: 'שגיאה בקבלת מבחנים' });
     }
   };
+
+
+  async function getExamsBySubjectAndClass(req, res) {
+    try {
+      const { subjectId, classId, teacherId } = req.query
+  
+      // בדיקת תקינות מזהים
+      if (
+        !mongoose.Types.ObjectId.isValid(subjectId) ||
+        !mongoose.Types.ObjectId.isValid(classId) ||
+        !mongoose.Types.ObjectId.isValid(teacherId)
+      ) {
+        return res.status(400).json({ message: 'אחד או יותר מה־IDים אינו תקין' });
+      }
+  
+      // שליפת מבחנים מהמסד
+      const exams = await Exam.find({
+        subject: new mongoose.Types.ObjectId(subjectId),
+        classId: new mongoose.Types.ObjectId(classId),
+        teacherId: new mongoose.Types.ObjectId(teacherId),  
+      });
+  
+      res.json(exams);
+    } catch (error) {
+      console.error('Error fetching exams by subject and class:', error);
+      res.status(500).json({ message: 'שגיאה בקבלת מבחנים לפי מקצוע וכיתה' });
+    }
+  }
+  
+  
+  
+  const getAvrageExam = async (req, res) => {
+    try {
+        const { examId } = req.params;
+        const exam = await Exam.findById(examId).populate('classId').populate('subject');
+        if (!exam) {
+            return res.status(404).json({ error: "Exam not found" });
+        }
+        const students = await Student.find({ classId: exam.classId });
+        const totalScore = students.reduce((acc, student) => acc + student.score, 0);
+        const averageScore = totalScore / students.length;
+        res.status(200).json({ averageScore });
+    } catch (error) {
+        res.status(500).json({ error: error.message });
+    }
+}
 
 // async function sendExamReminder(req, res) {
 //     try {
@@ -150,4 +196,4 @@ async function getExamsByClassAndTeacher(req, res) {
 
 module.exports = { createExam, getAllExams, getExamByClassId, updateExam, deleteExam
     // , sendExamReminder
-    ,getExamById,getExamsByClassAndTeacher };
+    ,getExamById,getExamsByClassAndTeacher,getExamsBySubjectAndClass ,getAvrageExam};
