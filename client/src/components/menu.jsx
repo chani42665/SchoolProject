@@ -1,41 +1,49 @@
 import React from 'react';
-import { Button } from 'primereact/button';
+import { Card } from 'primereact/card';
 import { useNavigate } from 'react-router-dom';
+//import './styles.css'; // ייבוא הקובץ שהכנת
 
 const Menu = () => {
   const navigate = useNavigate();
 
-  // מערך של דפים (ניתן להחליף את השמות והנתיבים)
   const pages = [
-    { name: 'Students', path: '/students' },
-    { name: 'Teachers', path: '/teachers' },
-    { name: 'Classes', path: '/classes' },
-    { name: 'Exams', path: '/exams' },
-    { name: 'Settings', path: '/settings' },
+    { name: 'Students', path: '/students', icon: 'pi pi-users', color: '#3B82F6' },
+    { name: 'Teachers', path: '/teachers', icon: 'pi pi-user', color: '#10B981' },
+    { name: 'Classes', path: '/classes', icon: 'pi pi-building', color: '#8B5CF6' },
+    { name: 'Settings', path: '/settings', icon: 'pi pi-cog', color: '#F59E0B' }
   ];
 
   return (
-    <div className="min-h-screen bg-gradient-to-r from-blue-500 via-purple-500 to-pink-500 p-6">
-      {/* Toolbar ברוחב מלא */}
-      <div className="w-full bg-white shadow-md rounded-lg p-4 mb-6">
-        <h1 className="text-2xl font-bold text-gray-800 text-center">Main Menu</h1>
+    
+    <div className="menu-container">
+      <div className="menu-header">
+        <Card className="menu-header-card">
+          <h1>Main Menu</h1>
+          <p>Choose an option to continue</p>
+        </Card>
       </div>
 
-      {/* תפריט ריבועים */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+      <div className="menu-grid">
         {pages.map((page, index) => (
-          <div
+          <Card
             key={index}
-            className="flex justify-center items-center bg-white shadow-lg rounded-lg p-6 hover:shadow-xl transition-shadow duration-300 cursor-pointer"
+            className="menu-card"
+            style={{ background: `linear-gradient(135deg, ${page.color}, ${page.color}dd)` }}
             onClick={() => navigate(page.path)}
           >
-            <Button
-              label={page.name}
-              className="p-button-text text-lg font-semibold text-gray-800"
-              style={{ width: '100%', height: '100%' }}
-            />
-          </div>
+            <div className="menu-card-content">
+              <div className="icon-container">
+                <i className={`${page.icon} icon`}></i>
+              </div>
+              <h3 className="card-title">{page.name}</h3>
+              <p className="card-subtitle">Manage {page.name.toLowerCase()}</p>
+            </div>
+          </Card>
         ))}
+      </div>
+
+      <div className="menu-footer">
+        <p>Click on any card to navigate to the respective section</p>
       </div>
     </div>
   );

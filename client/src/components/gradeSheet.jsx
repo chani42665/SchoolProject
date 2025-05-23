@@ -27,6 +27,7 @@ const GradeSheet = () => {
     const [expandedRows, setExpandedRows] = useState(null);
     const [editingRowId, setEditingRowId] = useState(null);
     const [editedGrade, setEditedGrade] = useState(null);
+
     useEffect(() => {
         getStudent();
         getStudentGrades();
@@ -55,7 +56,7 @@ const GradeSheet = () => {
                 }
 
                 acc[subject].details.push({
-                    gradeId: grade._id,
+                    gradeId: grade._id.toString(),
                     date,
                     grade: gradeValue,
                 });
@@ -108,7 +109,7 @@ const GradeSheet = () => {
 
     const rowExpansionTemplate = (data) => {
         return (
-            <DataTable value={data.details} responsiveLayout="scroll">
+            <DataTable value={data.details} responsiveLayout="scroll" dataKey="gradeId">
                 <Column
                     field="date"
                     header="Exam Date"
@@ -120,7 +121,7 @@ const GradeSheet = () => {
                     body={(rowData) =>
                         editingRowId === rowData.gradeId ? (
                             <InputNumber
-                                value={editedGrade}
+                                value={editedGrade ?? rowData.grade}
                                 onValueChange={(e) => setEditedGrade(e.value)}
                                 min={0}
                                 max={100}
@@ -135,13 +136,14 @@ const GradeSheet = () => {
                 <Column
                     header="Action"
                     body={(rowData) =>
-                        editingRowId === rowData.gradeId ? (
-                            isTeacherOrAdmin && (
+                        isTeacherOrAdmin && (
+                            editingRowId === rowData.gradeId ? (
                                 <>
                                     <Button
                                         icon="pi pi-check"
-                                        className="p-button-success p-button-sm mr-2"
+                                        className="p-button-success p-button-sm"
                                         onClick={() => handleSave(rowData)}
+                                        style={{ marginRight: '0.5rem' }}
                                     />
                                     <Button
                                         icon="pi pi-times"
@@ -152,13 +154,12 @@ const GradeSheet = () => {
                                         }}
                                     />
                                 </>
-                            )
-                        ) : (
-                            isTeacherOrAdmin && (
+                            ) : (
                                 <Button
                                     icon="pi pi-pencil"
                                     className="p-button-warning p-button-sm"
                                     onClick={() => {
+                                        console.log('Edit clicked for gradeId:', rowData.gradeId);
                                         setEditingRowId(rowData.gradeId);
                                         setEditedGrade(rowData.grade);
                                     }}
@@ -172,7 +173,7 @@ const GradeSheet = () => {
     };
 
     return (
-        <div className="p-4">
+        <div style={{ padding: '1rem' }}>
             <h2>Grade Sheet</h2>
             <h3>
                 {student.firstName} {student.lastName}

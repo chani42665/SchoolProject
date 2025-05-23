@@ -1,9 +1,8 @@
 import './App.css'
-import 'primereact/resources/themes/saga-orange/theme.css'; // או כל נושא אחר
-import 'primereact/resources/primereact.min.css';
-import 'primeicons/primeicons.css';
-import './tailwind.css'
-import './index.css'
+// import 'primereact/resources/themes/saga-orange/theme.css'; // או כל נושא אחר
+// import 'primereact/resources/primereact.min.css';
+// import 'primeicons/primeicons.css';
+// import './index.css'
 import { Route, Routes } from 'react-router-dom'
 import React, { lazy, Suspense, useEffect } from 'react';
 import AppBar from './components/appBar';

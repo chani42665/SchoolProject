@@ -9,9 +9,9 @@ import { useEffect, useRef } from 'react';
 
 const AppBar = () => {
   const navigate = useNavigate();
-  const dispatch = useDispatch();const userObj = useSelector((state) => state.userSlice);
+  const dispatch = useDispatch();
+  const userObj = useSelector((state) => state.userSlice);
   const user = userObj.user;
- 
   
   const op = useRef(null);
 
@@ -26,7 +26,11 @@ const AppBar = () => {
 
   const start = (
     <span
-      className="text-3xl font-bold cursor-pointer"
+      style={{
+        fontSize: '1.875rem',
+        fontWeight: 'bold',
+        cursor: 'pointer'
+      }}
       onClick={() => navigate('/')}
     >
       School
@@ -34,22 +38,29 @@ const AppBar = () => {
   );
 
   const end = user?.firstName ? (
-    <div className="flex items-center gap-3">
+    <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
       <Avatar
         label={user.firstName[0]}
         shape="circle"
-        className=" text-black cursor-pointer"
+        style={{ backgroundColor: '#0288d1',color:'#f9f9f9', cursor: 'pointer' }}
         size="large"
         onClick={(e) => op.current.toggle(e)}
       />
       <OverlayPanel ref={op} dismissable showCloseIcon>
-        <div className="flex flex-col gap-2 text-right w-48" style={{ direction: 'rtl' }}>
+        <div style={{ 
+          display: 'flex', 
+          flexDirection: 'column', 
+          gap: '0.5rem', 
+          textAlign: 'right', 
+          width: '12rem',
+          direction: 'rtl' 
+        }}>
           <p><strong>שם:</strong> {user.firstName} {user.lastName}</p>
           <p><strong>אימייל:</strong> {user.email}</p>
           <p><strong>תפקיד:</strong> {user.role}</p>
           <Button
             label="התנתק"
-            className="p-button p-button-danger text-white bg-red-600 border-red-600 hover:bg-red-700 hover:border-red-700"
+            severity="danger"
             onClick={handleLogout}
           />
         </div>
@@ -58,17 +69,29 @@ const AppBar = () => {
   ) : (
     <Button
       label="התחבר"
-      className="p-button-text"
+      text
       onClick={handleLogin}
     />
   );
 
   return (
-    <div className="w-full fixed top-0 left-0 z-50">
+    <div style={{ 
+      width: '100%', 
+      position: 'fixed', 
+      top: 0, 
+      left: 0, 
+      zIndex: 50 
+    }}>
       <Menubar
         start={start}
         end={end}
-        className="w-full bg-black border-none px-4"
+        style={{ 
+          width: '100%', 
+          backgroundColor: '#f9f9f9', 
+          border: 'none', 
+          padding: '0 1rem' ,
+          height: '4rem',
+        }}
       />
     </div>
   );

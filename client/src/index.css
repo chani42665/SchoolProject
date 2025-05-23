@@ -1,23 +1,35 @@
-:root {
-  margin: 0 !important;
-  padding: 0;
+/* :root {
+  --primary-color: #10b981 !important;
+  --primary-color-text: #ffffff;
+  --highlight-bg: #10b981;
+  --highlight-text-color: #ffffff;
+
   font-family: system-ui, Avenir, Helvetica, Arial, sans-serif;
   line-height: 1.5;
   font-weight: 400;
-
-  color-scheme: light dark;
-  color: rgba(255, 255, 255, 0.87);
-  background-color: #242424;
 
   font-synthesis: none;
   text-rendering: optimizeLegibility;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+} */
+
+:root {
+  --primary-color: #0288d1 !important;
+  --primary-color-hover: #0277bd !important; /* אפשר לשנות גם את הצבע בהובר */
+}
+
+
+body {
+  margin: 0;
+  padding: 0;
+  min-width: 320px;
+  min-height: 100vh;
+  padding-top: 4rem;
 }
 
 #root {
-  /* max-width: 1280px; */
-  margin: 0 auto !important;
+  margin: 0 auto;
   padding: 2rem;
   text-align: center;
 }
@@ -31,21 +43,13 @@ a:hover {
   color: #535bf2;
 }
 
-body {
-  margin: 0;
-  padding: 0;
-  display: flex;
-  min-width: 320px;
-  min-height: 100vh;
-  display: block;
-}
-
 h1 {
   font-size: 3.2em;
   line-height: 1.1;
 }
 
-button {
+/* סגנון כפתורים מותאם אישית – לא ישפיע על PrimeReact */
+.custom-button {
   border-radius: 8px;
   border: 1px solid transparent;
   padding: 0.6em 1.2em;
@@ -56,23 +60,135 @@ button {
   cursor: pointer;
   transition: border-color 0.25s;
 }
-button:hover {
+.custom-button:hover {
   border-color: #646cff;
 }
-button:focus,
-button:focus-visible {
+.custom-button:focus,
+.custom-button:focus-visible {
   outline: 4px auto -webkit-focus-ring-color;
+}
+
+/* שורת קלט של PrimeReact - לוודא שהיא תמיד מלאה */
+.p-password,
+.p-password-input,
+.p-inputtext {
+  width: 100% !important;
+  display: block;
+  box-sizing: border-box;
+}
+
+.p-input-icon-right > .pi {
+  right: 0.75rem; /* מרחק מהשמאל */
+   top: 1.75rem;
+  transform: translateY(-50%);
+  /* position: absolute; */
 }
 
 @media (prefers-color-scheme: light) {
   :root {
-    color: #213547;
-    background-color: #ffffff;
+
+    /* תן ל-theme של PrimeReact לנהל צבעים */
   }
+
   a:hover {
-    color: #747bff;
+    /* color: #747bff; */
   }
-  button {
-    background-color: #f9f9f9;
+
+  .custom-button {
+    /* background-color: #f9f9f9; */
   }
+}
+
+
+/* styles.css */
+.menu-container {
+  min-height: 100vh;
+  background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+  padding: 2rem;
+}
+
+.menu-header {
+  margin-bottom: 2rem;
+}
+
+.menu-header-card {
+  text-align: center;
+  padding: 2rem;
+  border-radius: 20px;
+  box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+}
+
+/* כרטיסי תפריט */
+.menu-card {
+  height: 280px;
+  border-radius: 25px;
+  overflow: hidden;
+  cursor: pointer;
+  position: relative;
+  transition: all 0.3s ease;
+  box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+}
+
+.menu-card:hover {
+  transform: translateY(-10px) scale(1.02);
+  box-shadow: 0 20px 40px rgba(0,0,0,0.15);
+}
+
+/* תוכן הכרטיס */
+.menu-card-content {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  padding: 2rem;
+  position: relative;
+  z-index: 2;
+}
+
+.icon-container {
+  width: 80px;
+  height: 80px;
+  border-radius: 20px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 1.5rem;
+  background: rgba(255,255,255,0.3);
+  backdrop-filter: blur(10px);
+}
+
+.icon {
+  font-size: 2.5rem;
+  color: white;
+}
+
+.card-title {
+  font-size: 1.8rem;
+  font-weight: bold;
+  color: white;
+  margin: 0 0 0.5rem 0;
+}
+
+.card-subtitle {
+  color: rgba(255,255,255,0.8);
+  font-size: 1rem;
+  margin: 0;
+}
+
+/* רשת גמישה */
+.menu-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 2rem;
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+/* פוטר */
+.menu-footer {
+  text-align: center;
+  margin-top: 3rem;
+  color: #6B7280;
 }

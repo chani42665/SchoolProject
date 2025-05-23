@@ -8,6 +8,8 @@ import { Dropdown } from 'primereact/dropdown';
 import * as XLSX from 'xlsx';
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
+import ExamSchedule from './examSchedule';
+import Graph from './graph';
 
 const Classes = () => {
     const { user: teacher } = useSelector((state) => state.userSlice);
@@ -17,10 +19,23 @@ const Classes = () => {
     const [exams, setExams] = useState([]);
     const [selectedExam, setSelectedExam] = useState(null);
     const [dialogVisible, setDialogVisible] = useState(false);
+    const [dialogExamScheduleVisible, setDialogExamScheduleVisible] = useState(false);
+    const [selectedClassForSchedule, setSelectedClassForSchedule] = useState(null);
+    const [showGraphDialog, setShowGraphDialog] = useState(false);
+    const [selectedClassForGraph, setSelectedClassForGraph] = useState(null);
+
+    const openExamScheduleDialog = (classObj) => {
+        setSelectedClassForSchedule(classObj);
+        setDialogExamScheduleVisible(true);
+    };
+    
+    const openGraphDialog = (classId) => {
+        setSelectedClassForGraph(classId);
+        setShowGraphDialog(true);
+    }
 
     const fileInputsRef = useRef({});
-        const navigate = useNavigate();
-
+    const navigate = useNavigate();
 
     // טעינת כיתות עבור המורה
     useEffect(() => {
@@ -33,24 +48,24 @@ const Classes = () => {
 
     // הצגת טבלת תלמידים לכל כיתה
     const loadStudents = (classObj) => (
-        <DataTable value={classObj.students} responsiveLayout="scroll">
+        <DataTable value={classObj.students} responsiveLayout="scroll" stripedRows>
             <Column field="studentId" header="תעודת זהות" />
             <Column field="firstName" header="שם פרטי" />
             <Column field="lastName" header="שם משפחה" />
             <Column field="email" header="אימייל" />
-                                <Column
-                                    field="grades"
-                                    header="Grade sheet"
-                                    body={(rowData) => (
-                                        <Button
-                                            label="View Grade sheet"
-                                            icon="pi pi-eye"
-                                            className="p-button-text p-button-info"
-                                            onClick={() => navigate(`/gradeSheet/${rowData._id}`)}
-                                       
-                                        />
-                                    )}
-                                ></Column> 
+            <Column
+                field="grades"
+                header="Grade sheet"
+                body={(rowData) => (
+                    <Button
+                        label="View Grade sheet"
+                        icon="pi pi-eye"
+                        text
+                        severity="info"
+                        onClick={() => navigate(`/gradeSheet/${rowData._id}`)}
+                    />
+                )}
+            />
         </DataTable>
     );
 
@@ -168,7 +183,7 @@ const Classes = () => {
             alert('התלמידות נוספו בהצלחה');
 
             const updatedClasses = await axios.get(`http://localhost:8080/class/getClassesByTeacher/${teacher._id}`);
-        setClasses(updatedClasses.data);
+            setClasses(updatedClasses.data);
         } catch (error) {
             console.error('שגיאה בהעלאת הקובץ:', error);
             alert('אירעה שגיאה. ודא שהקובץ תקין ונסה שוב.');
@@ -176,8 +191,23 @@ const Classes = () => {
     };
 
     return (
-        <div className="p-4 max-w-7xl mx-auto bg-white shadow-lg rounded-2xl">
-            <h2 className="text-2xl font-bold mb-6 text-center text-blue-700">הכיתות שאני מלמד</h2>
+        <div style={{ 
+            padding: '2rem', 
+            maxWidth: '80rem', 
+            margin: '0 auto', 
+            backgroundColor: 'white',
+            borderRadius: '1rem',
+            boxShadow: '0 10px 15px -3px rgba(0, 0, 0, 0.1)'
+        }}>
+            <h2 style={{ 
+                fontSize: '1.5rem', 
+                fontWeight: 'bold', 
+                marginBottom: '1.5rem', 
+                textAlign: 'center', 
+                color: '#1d4ed8' 
+            }}>
+                הכיתות שאני מלמד
+            </h2>
 
             <DataTable
                 value={classes}
@@ -187,43 +217,67 @@ const Classes = () => {
                 dataKey="_id"
                 responsiveLayout="scroll"
                 stripedRows
-                className="shadow-md rounded-lg overflow-hidden"
+                style={{ 
+                    borderRadius: '0.5rem',
+                    overflow: 'hidden',
+                    boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1)'
+                }}
             >
                 <Column expander style={{ width: '3em' }} />
                 <Column field="name" header="שם כיתה" />
                 <Column
                     header="פעולות"
                     body={(rowData) => (
-                        <div className="mt-4 flex flex-wrap gap-3">
-    <Button
-        label="ייצוא ציונים"
-        onClick={() => openExamDialog(rowData)}
-        className="bg-blue-600 text-white hover:bg-blue-700"
-    />
-    <Button
-        label="ייצוא תלמידים"
-        onClick={() => downloadStudentsExcel(rowData)}
-        className="bg-gray-200 text-black hover:bg-gray-300"
-    />
-    <Button
-        label="הורד תבנית תלמידים"
-        onClick={() => downloadEmptyStudentsExcel(rowData)}
-        className="bg-purple-100 text-black hover:bg-purple-200"
-    />
-    <Button
-        label="העלה תלמידים"
-        onClick={() => fileInputsRef.current[rowData._id]?.click()}
-        className="bg-green-500 text-white hover:bg-green-600"
-    />
-    <input
-        type="file"
-        accept=".xlsx"
-        onChange={handleFileUpload}
-        ref={(el) => (fileInputsRef.current[rowData._id] = el)}
-        style={{ display: "none" }}
-    />
-</div>
-                        
+                        <div style={{ 
+                            marginTop: '1rem', 
+                            display: 'flex', 
+                            flexWrap: 'wrap', 
+                            gap: '0.75rem' 
+                        }}>
+                            <Button
+                                label="ייצוא ציונים"
+                                onClick={() => openExamDialog(rowData)}
+                                style={{ backgroundColor: '#2563eb', color: 'white' }}
+                            />
+                            <Button
+                                label="ייצוא תלמידים"
+                                onClick={() => downloadStudentsExcel(rowData)}
+                                severity="secondary"
+                            />
+                            <Button
+                                label="הורד תבנית תלמידים"
+                                onClick={() => downloadEmptyStudentsExcel(rowData)}
+                                severity="help"
+                                outlined
+                            />
+                            <Button
+                                label="העלה תלמידים"
+                                onClick={() => fileInputsRef.current[rowData._id]?.click()}
+                                severity="success"
+                            />
+                            <Button
+                                label="View exam schedule"
+                                icon="pi pi-file-edit"
+                                text
+                                severity="info"
+                                onClick={() => openExamScheduleDialog(rowData._id)}
+                            />
+                            <Button
+                                label="הצג גרף"
+                                icon="pi pi-chart-bar"
+                                onClick={() => openGraphDialog(rowData._id)}
+                                size="small"
+                                severity="warning"
+                            />
+
+                            <input
+                                type="file"
+                                accept=".xlsx"
+                                onChange={handleFileUpload}
+                                ref={(el) => (fileInputsRef.current[rowData._id] = el)}
+                                style={{ display: "none" }}
+                            />
+                        </div>
                     )}
                 />
             </DataTable>
@@ -232,28 +286,64 @@ const Classes = () => {
                 header="בחר מבחן"
                 visible={dialogVisible}
                 onHide={() => setDialogVisible(false)}
-                    className="w-full md:w-[30vw] rounded-xl"
-    contentClassName="p-5"
-
+                style={{ width: '30vw', minWidth: '300px' }}
+                breakpoints={{ '960px': '75vw', '640px': '90vw' }}
             >
-                <Dropdown
-                    value={selectedExam}
-                    options={exams}
-                    onChange={(e) => setSelectedExam(e.value)}
-                    optionLabel={(e) => e.subject?.name}
-                    placeholder="בחר מבחן"
-    className="w-full mb-3 p-inputtext-sm"
-                />
-                <Button
-                    label="הורד אקסל"
-                    onClick={downloadExcelTemplate}
-                    disabled={!selectedExam}
-                    className="mr-2"
-                />
-                <label className="mt-4 block text-sm font-medium text-gray-700">
-                    העלה קובץ אקסל:
-                    <input type="file" accept=".xlsx" onChange={handleFileUpload} className="mt-1"/>
-                </label>
+                <div style={{ padding: '1.25rem' }}>
+                    <Dropdown
+                        value={selectedExam}
+                        options={exams}
+                        onChange={(e) => setSelectedExam(e.value)}
+                        optionLabel={(e) => e.subject?.name}
+                        placeholder="בחר מבחן"
+                        style={{ width: '100%', marginBottom: '0.75rem' }}
+                    />
+                    <Button
+                        label="הורד אקסל"
+                        onClick={downloadExcelTemplate}
+                        disabled={!selectedExam}
+                        style={{ marginRight: '0.5rem' }}
+                    />
+                    <label style={{ 
+                        marginTop: '1rem', 
+                        display: 'block', 
+                        fontSize: '0.875rem', 
+                        fontWeight: '500', 
+                        color: '#374151' 
+                    }}>
+                        העלה קובץ אקסל:
+                        <input 
+                            type="file" 
+                            accept=".xlsx" 
+                            onChange={handleFileUpload} 
+                            style={{ marginTop: '0.25rem' }} 
+                        />
+                    </label>
+                </div>
+            </Dialog>
+
+            <Dialog
+                header={`לוח מבחנים עבור ${selectedClassForSchedule?.name || ''}`}
+                visible={dialogExamScheduleVisible}
+                onHide={() => setDialogExamScheduleVisible(false)}
+                style={{ width: '40vw', minWidth: '400px' }}
+                breakpoints={{ '960px': '75vw', '640px': '90vw' }}
+            >
+                <div style={{ padding: '1.25rem' }}>
+                    {selectedClassForSchedule && (
+                        <ExamSchedule classObj={selectedClassForSchedule} />
+                    )}
+                </div>
+            </Dialog>
+
+            <Dialog
+                header="גרף ציונים"
+                visible={showGraphDialog}
+                onHide={() => setShowGraphDialog(false)}
+                style={{ width: '50vw' }}
+                breakpoints={{ '960px': '75vw', '640px': '90vw' }}
+            >
+                <Graph classId={selectedClassForGraph} teacherId={teacher?._id} />
             </Dialog>
         </div>
     );

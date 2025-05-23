@@ -6,21 +6,10 @@ import { InputText } from 'primereact/inputtext';
 import { Password } from 'primereact/password';
 import { Button } from 'primereact/button';
 import { Card } from 'primereact/card';
-import 'primereact/resources/themes/saga-blue/theme.css';
-import 'primereact/resources/primereact.min.css';
-import 'primeicons/primeicons.css';
 import { useDispatch } from 'react-redux';
 import { createUser } from '../store/UserSlice';
 
-// Custom styles for PrimeReact components to work well with Tailwind
-const customStyles = `
-  .p-card {
-    width: 100%;
-  }
-  .p-password, .p-inputtext {
-    width: 100% !important;
-  }
-`;
+
 
 const Login = () => {
   const dispatch = useDispatch();
@@ -42,55 +31,77 @@ const Login = () => {
       });
   };
 
+
   return (
-    <>
-      {/* מספר קטן של סגנונות חיוניים להתאמה בין Tailwind ו-PrimeReact */}
-      <style>{customStyles}</style>
-      
-      {/* מיכל מרכזי עם מלוא גובה המסך */}
-      <div className="flex justify-center items-center min-h-screen bg-gray-50 w-full p-4">
-        {/* כרטיס הלוגין ברוחב מוגבל */}
-        <div className="w-full max-w-md">
-          <Card className="shadow-md">
-            <h2 className="text-center text-xl font-semibold text-gray-800 mb-6">Login</h2>
-            
-            <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
-              <div>
-                <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-1">Email</label>
+    <div className="surface-ground flex align-items-center justify-content-center min-h-screen p-4">
+      <div className="w-full md:w-30rem"> {/* שינוי הרוחב לערך קבוע */}
+        <Card className="surface-card shadow-2 border-round-xl p-4">
+          <div className="text-center mb-5">
+            <div className="surface-200 border-circle w-6rem h-6rem mx-auto mb-3 flex align-items-center justify-content-center">
+              <i className="pi pi-user text-4xl text-primary"></i>
+            </div>
+            <div className="text-900 text-3xl font-medium mb-3">Welcome</div>
+            <span className="text-600 font-medium">Sign in to your account</span>
+          </div>
+
+          <form onSubmit={handleSubmit(onSubmit)} className="flex flex-column gap-4">
+            <div className="field w-full">
+              <label htmlFor="email" className="block text-900 font-medium mb-2">
+                Email
+              </label>
+              <span className="p-input-icon-right w-full block">
+                <i className="pi pi-envelope" />
                 <InputText
                   id="email"
                   placeholder="Enter your email"
                   {...register('email', { required: 'Email is required' })}
-                  className={errors.email ? 'p-invalid' : ''}
+                  className="w-full"
                 />
-                {errors.email && <Message severity="error" text={errors.email.message} />}
-              </div>
+              </span>
+              {errors.email && (
+                <small className="p-error block mt-2">{errors.email.message}</small>
+              )}
+            </div>
 
-              <div>
-                <label htmlFor="password" className="block text-sm font-medium text-gray-700 mb-1">Password</label>
-                <Controller
-                  name="password"
-                  control={control}
-                  rules={{ required: 'Password is required' }}
-                  render={({ field }) => (
+            <div className="field w-full">
+              <label htmlFor="password" className="block text-900 font-medium mb-2">
+                Password
+              </label>
+              <Controller
+                name="password"
+                control={control}
+                rules={{ required: 'Password is required' }}
+                render={({ field }) => (
+                  <div className="w-full block">
                     <Password
                       id="password"
                       placeholder="Enter your password"
                       toggleMask
-                      className={errors.password ? 'p-invalid' : ''}
+                      className="w-full"
+                      inputClassName="w-full"
                       {...field}
+                      feedback={false}
                     />
-                  )}
-                />
-                {errors.password && <Message severity="error" text={errors.password.message} />}
-              </div>
+                  </div>
+                )}
+              />
+              {errors.password && (
+                <small className="p-error block mt-2">{errors.password.message}</small>
+              )}
+            </div>
 
-              <Button label="Login" type="submit" icon="pi pi-sign-in" className="w-full mt-6" />
-            </form>
-          </Card>
-        </div>
+            <Button
+              type="submit"
+              label="Sign In"
+              icon="pi pi-sign-in"
+              severity="primary"
+              className="w-full"
+            />
+          </form>
+
+        </Card>
       </div>
-    </>
+    </div>
   );
 };
 

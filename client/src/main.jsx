@@ -5,10 +5,10 @@ import { BrowserRouter } from 'react-router-dom'
 import { configureStore } from '@reduxjs/toolkit'
 import userSlice from './store/UserSlice.jsx'
 import { Provider } from 'react-redux'
-import 'primereact/resources/themes/saga-orange/theme.css'; // או כל נושא אחר
-import 'primereact/resources/primereact.min.css';
-import 'primeicons/primeicons.css';
-import './tailwind.css'
+import './theme.css';
+import 'primereact/resources/primereact.min.css'                  // core css
+import 'primeicons/primeicons.css'                               // icons
+import "primeflex/primeflex.css";
 import './index.css'
 
 
