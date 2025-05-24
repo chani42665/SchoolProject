@@ -1,17 +1,45 @@
 import React from 'react';
 import { Card } from 'primereact/card';
 import { useNavigate } from 'react-router-dom';
+import { useSelector } from 'react-redux';
 //import './styles.css'; // ייבוא הקובץ שהכנת
 
 const Menu = () => {
   const navigate = useNavigate();
-
-  const pages = [
-    { name: 'Students', path: '/students', icon: 'pi pi-users', color: '#3B82F6' },
-    { name: 'Teachers', path: '/teachers', icon: 'pi pi-user', color: '#10B981' },
-    { name: 'Classes', path: '/classes', icon: 'pi pi-building', color: '#8B5CF6' },
-    { name: 'Settings', path: '/settings', icon: 'pi pi-cog', color: '#F59E0B' }
-  ];
+  const userObj = useSelector((state) => state.userSlice);
+  const user = userObj.user;
+  const pages=[];
+switch(user.role){
+    case 'admin':
+        pages.push(
+            { name: 'Students', path: '/students', icon: 'pi pi-users', color: '#3B82F6' },
+            { name: 'Teachers', path: '/teachers', icon: 'pi pi-user', color: '#10B981' },
+            { name: 'Classes', path: '/classes', icon: 'pi pi-building', color: '#8B5CF6' },
+            { name: 'Settings', path: '/settings', icon: 'pi pi-cog', color: '#F59E0B' }
+        );
+        break;
+    case 'teacher':
+        pages.push(
+            { name: 'Students', path: '/students', icon: 'pi pi-users', color: '#3B82F6' },
+            { name: 'Classes', path: '/classes', icon: 'pi pi-building', color: '#8B5CF6' }
+        );
+        break;
+    case 'student':
+        pages.push(
+            { name: 'Classes', path: '/classes', icon: 'pi pi-building', color: '#8B5CF6' }
+        );
+        break;
+    default:
+        pages.push(
+            { name: 'Home', path  : '/', icon: 'pi pi-home', color: '#F59E0B' }
+        );                
+}
+  // pages = [
+  //   { name: 'Students', path: '/students', icon: 'pi pi-users', color: '#3B82F6' },
+  //   { name: 'Teachers', path: '/teachers', icon: 'pi pi-user', color: '#10B981' },
+  //   { name: 'Classes', path: '/classes', icon: 'pi pi-building', color: '#8B5CF6' },
+  //   { name: 'Settings', path: '/settings', icon: 'pi pi-cog', color: '#F59E0B' }
+  // ];
 
   return (
     
